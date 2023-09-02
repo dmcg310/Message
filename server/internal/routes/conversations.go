@@ -8,7 +8,7 @@ import (
 
 func Conversations(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	conversationId := vars["conversationId"]
+	conversationId := vars["ConversationId"]
 
 	_, err := w.Write([]byte("Conversations, id: " + conversationId))
 	if err != nil {
