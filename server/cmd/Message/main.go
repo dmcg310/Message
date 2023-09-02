@@ -1,23 +1,17 @@
 package main
 
 import (
+	"github.com/dmcg310/Message/server/internal/routes"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
 
 func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", Index)
+	r := mux.NewRouter()
+	r.HandleFunc("/", routes.Index)                                                 // index
+	r.HandleFunc("/messages/", routes.Messages).Methods("GET")                      // gets all messages
+	r.HandleFunc("/messages/{conversationId}", routes.Conversations).Methods("GET") // gets all messages for a conversation
 
-	err := http.ListenAndServe(":8080", mux)
-	if err != nil {
-		log.Fatalf("Could not start server: %s\n", err.Error())
-	}
-}
-
-func Index(w http.ResponseWriter, r *http.Request) {
-	_, err := w.Write([]byte("Hello, world!"))
-	if err != nil {
-		log.Printf("Could not write response: %s\n", err.Error())
-	}
+	log.Fatal(http.ListenAndServe(":8080", r))
 }
