@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/dmcg310/Message/server/internal/database"
 	"github.com/dmcg310/Message/server/internal/routes"
@@ -15,17 +16,20 @@ func main() {
 	_ = db
 	r := mux.NewRouter()
 
-	r.HandleFunc("/ws/", func(w http.ResponseWriter, r *http.Request) {
-		err := ws.NewWS(w, r, db)
+	r.HandleFunc("/", routes.Index)
+	r.HandleFunc("/messages/", routes.Messages).Methods("GET")
+	r.HandleFunc("/messages/{ConversationId}", routes.Conversations).Methods("GET")
+	r.HandleFunc("/messages/{ConversationId}/", func(w http.ResponseWriter, r *http.Request) {
+		conversationID, err := strconv.Atoi(mux.Vars(r)["ConversationId"])
+		if err != nil {
+			log.Println(err)
+		}
+
+		err = ws.NewWS(w, r, db, conversationID)
 		if err != nil {
 			log.Println(err)
 		}
 	})
-
-	r.HandleFunc("/", routes.Index)
-	r.HandleFunc("/messages/", routes.Messages).Methods("GET")
-	r.HandleFunc("/messages/{ConversationId}", routes.Conversations).Methods("GET")
-
 	r.HandleFunc("/account/", func(w http.ResponseWriter, r *http.Request) {
 		routes.GetAccount(w, r, db)
 	}).Methods("GET")
