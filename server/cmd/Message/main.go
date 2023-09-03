@@ -17,13 +17,17 @@ func main() {
 	r.HandleFunc("/messages/", routes.Messages).Methods("GET")                      // gets all messages
 	r.HandleFunc("/messages/{ConversationId}", routes.Conversations).Methods("GET") // gets all messages for a conversation
 
-	// r.HandleFunc("/account/{UserID}", routes.Account).Methods("GET")
+	r.HandleFunc("/account/", func(w http.ResponseWriter, r *http.Request) {
+		routes.GetAccount(w, r, db)
+	}).Methods("GET")
 	// r.HandleFunc("/sign-in/", routes.SignIn).Methods("GET")
 	// r.HandleFunc("/sign-out/", routes.SignOut).Methods("POST")
 	r.HandleFunc("/create-account/", func(w http.ResponseWriter, r *http.Request) {
-		routes.CreateAccount(w, r, db) // Pass the "db" connection to the route handler
+		routes.CreateAccount(w, r, db)
 	}).Methods("POST")
-	// r.HandleFunc("/delete-account/", routes.DeleteAccount).Methods("POST")
+	r.HandleFunc("/delete-account/", func(w http.ResponseWriter, r *http.Request) {
+		routes.DeleteAccount(w, r, db)
+	}).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":8080", r))
 }

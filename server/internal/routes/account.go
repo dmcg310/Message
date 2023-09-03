@@ -1,6 +1,9 @@
 package routes
 
-// TODO: handle actual forms from frontend
+/* TODO:
+* - handle actual forms from frontend
+* - remember me token
+ */
 
 import (
 	"database/sql"
@@ -19,27 +22,31 @@ type Details struct {
 var (
 	// should be real form data
 	details Details = Details{
-		UserID:   1,
+		UserID:   5,
 		Username: "JDoe",
 		Email:    "john_though@gmail.com",
 		Password: "Password123",
 		RMToken:  "8asd7f8918172",
 	}
-
 	_ = details
+
+	emailExists    bool
+	usernameExists bool
+	userExists     bool
 )
 
-func GetAccount() {
-	// TODO: check if user is logged in, if not, redirect to login page
+func GetAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	err := db.QueryRow("SELECT * FROM users WHERE id = $1", details.UserID).Scan(&details.UserID, &details.Username, &details.Email, &details.Password, &details.RMToken)
+	if err != nil {
+		fmt.Println("Error retrieving account info: ", err)
+		return
+	}
+
+	// do something with details
 }
 
 func CreateAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	// TODO: Hash password & http responses
-	var (
-		emailExists    bool
-		usernameExists bool
-	)
-
 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)",
 		details.Email).Scan(&emailExists)
 	if err != nil {
@@ -72,8 +79,24 @@ func CreateAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 }
 
-func DeleteAccount() {
-	// TODO: check if account exists, if it does, delete account
+func DeleteAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	// TODO: http responses
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)", details.UserID).Scan(&userExists)
+	if err != nil {
+		fmt.Println("Error checking if email exists in database: ", err)
+		return
+	}
+
+	if !userExists {
+		fmt.Println("User does not exist")
+		return
+	}
+
+	_, err = db.Exec("DELETE FROM users WHERE id = $1", details.UserID)
+	if err != nil {
+		fmt.Println("Error inserting into database: ", err)
+		return
+	}
 }
 
 func SignIn() {
