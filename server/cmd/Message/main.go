@@ -1,13 +1,16 @@
 package main
 
 import (
-	"github.com/dmcg310/Message/server/internal/routes"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"github.com/dmcg310/Message/server/internal/database"
+	"github.com/dmcg310/Message/server/internal/routes"
+	"github.com/gorilla/mux"
 )
 
 func main() {
+	database.InitDatabase() // error handling is done in InitDatabase()
+
 	r := mux.NewRouter()
 	r.HandleFunc("/", routes.Index)                                                 // index
 	r.HandleFunc("/messages/", routes.Messages).Methods("GET")                      // gets all messages
