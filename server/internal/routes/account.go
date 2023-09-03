@@ -99,11 +99,40 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 }
 
-func SignIn() {
-	// TODO: compare login info with DB, (unhash pw and check), if RM, generate token
-	// TODO: store token securely in frontend
+func SignIn(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	/* TODO:
+	* - unhash password
+	* - token should be generated only if user checks remember me
+	 */
+	token := "8asd7f8918172"
+
+	err := db.QueryRow(
+		"SELECT EXISTS(SELECT 1 FROM users WHERE email = $1 AND password = $2)",
+		details.Email, details.Password).Scan(&userExists)
+	if err != nil {
+		fmt.Println("Error checking if email exists in database: ", err)
+		return
+	}
+
+	if !userExists {
+		fmt.Println("User does not exist")
+		return
+	}
+
+	_, err = db.Exec("UPDATE users SET remember_me_token = $1 WHERE email = $2",
+		token, details.Email)
+	if err != nil {
+		fmt.Println("Error inserting into database: ", err)
+		return
+	}
 }
 
-func SignOut() {
-	// TODO: sign out user by removing RM token
+func SignOut(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	// TODO: http responses
+	err := db.QueryRow("UPDATE users SET remember_me_token = NULL WHERE email = $1",
+		details.Email)
+	if err != nil {
+		fmt.Println("Error updating database: ", err)
+		return
+	}
 }
