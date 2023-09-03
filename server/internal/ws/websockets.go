@@ -33,6 +33,11 @@ func HandleMessage(conn *websocket.Conn, db *sql.DB, conversationID int) (err er
 	_ = db
 
 	conversationDetails, err := routes.GetConversationDetails(db, conversationID)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
 	conversationJSON, err := json.Marshal(conversationDetails)
 	if err != nil {
 		log.Println(err)
