@@ -19,7 +19,7 @@ func LoadEnv() (DBNAME, USER, PASSWORD string) {
 		os.Getenv("POSTGRES_PASSWORD")
 }
 
-func InitDatabase() {
+func InitDatabase() *sql.DB {
 	DBNAME, USER, PASSWORD := LoadEnv()
 	conn := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
 		USER, PASSWORD, DBNAME)
@@ -29,12 +29,10 @@ func InitDatabase() {
 		log.Fatalf("Error opening database: %q", err)
 	}
 
-	defer db.Close()
-
 	err = db.Ping()
 	if err != nil {
 		log.Fatalf("Error connecting to database: %q", err)
 	}
 
-	fmt.Println("Successfully connected to database")
+	return db
 }
