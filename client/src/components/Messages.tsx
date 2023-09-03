@@ -1,22 +1,28 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import getConversations from "../api/getConversations";
 
 const Messages = () => {
-  useEffect(() => {
-    const fetchConversations = async () => {
-      const conversations = await getConversations("5");
-      if (conversations) {
-        console.log(conversations);
-      } else {
-        console.log("No conversations");
-      }
-    };
+  const [conversations, setConversations] = useState([]);
 
+  useEffect(() => {
     fetchConversations();
-  });
+  }, []);
+
+  const fetchConversations = async () => {
+    const conversations = await getConversations("5"); // TODO: get actual user id
+    if (conversations) {
+      setConversations(conversations);
+    }
+  };
+
   return (
     <div>
-      <h1>Messages</h1>
+      <h1>Conversations</h1>
+      {conversations.map((conversation: string) => (
+        <div key={conversation}>
+          <h2>{conversation}</h2>
+        </div>
+      ))}
     </div>
   );
 };

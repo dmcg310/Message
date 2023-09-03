@@ -5,7 +5,6 @@ const getConversations = async (userId: string) => {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
       "User-Id": userId,
     },
   });

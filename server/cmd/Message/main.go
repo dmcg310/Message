@@ -53,12 +53,12 @@ func main() {
 	}).Methods("POST")
 
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"}, // You can specify specific origins instead of "*"
+		AllowedOrigins: []string{"http://localhost:5173"},
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders: []string{"Content-Type", "User-Id"},
 	})
 
-    handler := c.Handler(r)
+	handler := c.Handler(r)
 
 	log.Fatal(http.ListenAndServe(":8080", handler))
 }
