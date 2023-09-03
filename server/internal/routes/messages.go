@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -23,11 +22,101 @@ type Message struct {
 	CreatedAt      string
 }
 
-func Messages(w http.ResponseWriter, r *http.Request) {
-	_, err := w.Write([]byte("Messages"))
+func Messages(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	userID, err := strconv.Atoi(r.Header.Get("User-Id"))
 	if err != nil {
-		log.Printf("Could not write response: %s\n", err.Error())
+		fmt.Println("Error converting user ID to int: ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
+
+	rows, err := db.Query("SELECT conversation_id FROM participants WHERE user_id = $1", userID)
+	if err != nil {
+		fmt.Println("Error retrieving conversations: ", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	defer rows.Close()
+
+	var conversationIDs []int
+	for rows.Next() {
+		var conversationID int
+		if err := rows.Scan(&conversationID); err != nil {
+			fmt.Println("Error scanning conversation row: ", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		conversationIDs = append(conversationIDs, conversationID)
+	}
+
+	var participants []string
+
+	for _, conversationID := range conversationIDs {
+		participantUsernames, err := GetParticipantUsernames(db, conversationID, userID)
+		if err != nil {
+			fmt.Println("Error retrieving participant usernames: ", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		participants = append(participants, participantUsernames...)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	uniqueParticipants := removeDuplicates(participants)
+
+	participantsJSON, err := json.Marshal(uniqueParticipants)
+	if err != nil {
+		fmt.Println("Error serializing participant names to JSON: ", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_, err = w.Write(participantsJSON)
+	if err != nil {
+		fmt.Println("Error writing JSON to response: ", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func GetParticipantUsernames(db *sql.DB, conversationID int, userID int) ([]string, error) {
+	var participantUsernames []string
+
+	rows, err := db.Query("SELECT username FROM users WHERE id IN (SELECT user_id FROM participants WHERE conversation_id = $1) AND id != $2", conversationID, userID)
+	if err != nil {
+		return participantUsernames, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var username string
+		if err := rows.Scan(&username); err != nil {
+			return participantUsernames, err
+		}
+
+		participantUsernames = append(participantUsernames, username)
+	}
+
+	return participantUsernames, nil
+}
+
+func removeDuplicates(s []string) []string {
+	unique := make(map[string]struct{})
+	result := []string{}
+	for _, str := range s {
+		if _, ok := unique[str]; !ok {
+			unique[str] = struct{}{}
+			result = append(result, str)
+		}
+	}
+
+	return result
 }
 
 func FetchConversations(w http.ResponseWriter, r *http.Request, db *sql.DB) {
@@ -52,7 +141,11 @@ func FetchConversations(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(conversationJSON)
+	_, err = w.Write(conversationJSON)
+	if err != nil {
+		fmt.Println("Error writing JSON to response: ", err)
+		return
+	}
 }
 
 func GetConversationDetails(db *sql.DB, conversationID int) (conversationDetails ConversationDetails, err error) {

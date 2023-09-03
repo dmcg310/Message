@@ -1,14 +1,14 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"strconv"
-
 	"github.com/dmcg310/Message/server/internal/database"
 	"github.com/dmcg310/Message/server/internal/routes"
 	"github.com/dmcg310/Message/server/internal/ws"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
+	"log"
+	"net/http"
+	"strconv"
 )
 
 func main() {
@@ -17,7 +17,9 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", routes.Index)
-	r.HandleFunc("/messages/", routes.Messages).Methods("GET")
+	r.HandleFunc("/messages/", func(w http.ResponseWriter, r *http.Request) {
+		routes.Messages(w, r, db)
+	}).Methods("GET")
 	r.HandleFunc("/messages/{ConversationId}", routes.Conversations).Methods("GET")
 	r.HandleFunc("/messages/{ConversationId}/", func(w http.ResponseWriter, r *http.Request) {
 		conversationID, err := strconv.Atoi(mux.Vars(r)["ConversationId"])
@@ -50,5 +52,13 @@ func main() {
 		routes.DeleteAccount(w, r, db)
 	}).Methods("POST")
 
-	log.Fatal(http.ListenAndServe(":8080", r))
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"}, // You can specify specific origins instead of "*"
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"Content-Type", "User-Id"},
+	})
+
+    handler := c.Handler(r)
+
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }
