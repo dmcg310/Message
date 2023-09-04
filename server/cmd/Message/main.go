@@ -31,6 +31,9 @@ func main() {
 			log.Println(err)
 		}
 	})
+	r.HandleFunc("/messages/{ConversationId}/save/", func(w http.ResponseWriter, r *http.Request) {
+		routes.SendMessage(w, r, db)
+	}).Methods("POST")
 	r.HandleFunc("/account/", func(w http.ResponseWriter, r *http.Request) {
 		routes.GetAccount(w, r, db)
 	}).Methods("GET")

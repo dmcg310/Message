@@ -9,14 +9,18 @@ import (
 	"net/http"
 )
 
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-		allowedOrigin := "http://localhost:5173"
-		return r.Header.Get("Origin") == allowedOrigin
-	},
-}
+var (
+	upgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		CheckOrigin: func(r *http.Request) bool {
+			allowedOrigin := "http://localhost:5173"
+			return r.Header.Get("Origin") == allowedOrigin
+		},
+	}
+
+	clients = make(map[*websocket.Conn]bool)
+)
 
 func NewWS(w http.ResponseWriter, r *http.Request, db *sql.DB, conversationID int) (err error) {
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -33,8 +37,7 @@ func NewWS(w http.ResponseWriter, r *http.Request, db *sql.DB, conversationID in
 }
 
 func HandleMessage(conn *websocket.Conn, db *sql.DB, conversationID int) (err error) {
-	// TODO: save message to database
-	_ = db
+	clients[conn] = true
 
 	conversationDetails, err := routes.GetConversationDetails(db, conversationID)
 	if err != nil {
@@ -57,11 +60,18 @@ func HandleMessage(conn *websocket.Conn, db *sql.DB, conversationID int) (err er
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
 			log.Println(err)
+			delete(clients, conn)
 			return err
+		}
+
+		// Broadcast the message to all connected clients
+		for client := range clients {
+			if err = client.WriteMessage(websocket.TextMessage, msg); err != nil {
+				log.Println(err)
+				continue
+			}
 		}
 
 		log.Printf("(%s) %s", conn.RemoteAddr(), msg)
 	}
 }
-
-// TODO: func SendToClient() {}

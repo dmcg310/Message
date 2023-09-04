@@ -97,19 +97,6 @@ func GetParticipantUsernames(db *sql.DB, conversationID int, userID int) ([]stri
 	return participantUsernames, nil
 }
 
-func removeDuplicates(s []string) []string {
-	unique := make(map[string]struct{})
-	result := []string{}
-	for _, str := range s {
-		if _, ok := unique[str]; !ok {
-			unique[str] = struct{}{}
-			result = append(result, str)
-		}
-	}
-
-	return result
-}
-
 func FetchConversations(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	vars := mux.Vars(r)
 	conversationID, err := strconv.Atoi(vars["ConversationId"])
@@ -214,4 +201,42 @@ func GetConversationDetails(db *sql.DB, conversationID int) (conversationDetails
 	conversationDetails.Messages = messages
 
 	return conversationDetails, nil
+}
+
+func SendMessage(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	userID, err := strconv.Atoi(r.Header.Get("User-Id"))
+	if err != nil {
+		fmt.Println("Error converting user ID to int: ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	vars := mux.Vars(r)
+	conversationID, err := strconv.Atoi(vars["ConversationId"])
+	if err != nil {
+		fmt.Println("Error converting conversation ID to int: ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var message struct {
+		Content string `json:"content"`
+	}
+
+	err = json.NewDecoder(r.Body).Decode(&message)
+	if err != nil {
+		fmt.Println("Error decoding JSON: ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	_, err = db.Exec("INSERT INTO messages (sender_id, conversation_id, content) VALUES ($1, $2, $3)", userID, conversationID, message.Content)
+	if err != nil {
+		fmt.Println("Error inserting message into database: ", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Println("HERE")
+	w.WriteHeader(http.StatusOK)
 }
