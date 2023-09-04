@@ -4,6 +4,7 @@ import Messages from "./components/Messages";
 import SpecificConversation from "./components/Conversations.tsx";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import SignUp from "./components/Signup.tsx";
+import SignIn from "./components/Signin.tsx";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/create-account/" element={<SignUp />} />
+          <Route path="/sign-in/" element={<SignIn />} />
           <Route path="/messages" element={<Messages />} />
           <Route
             path="/messages/:conversationId"
