@@ -64,14 +64,11 @@ func HandleMessage(conn *websocket.Conn, db *sql.DB, conversationID int) (err er
 			return err
 		}
 
-		// Broadcast the message to all connected clients
 		for client := range clients {
 			if err = client.WriteMessage(websocket.TextMessage, msg); err != nil {
 				log.Println(err)
 				continue
 			}
 		}
-
-		log.Printf("(%s) %s", conn.RemoteAddr(), msg)
 	}
 }

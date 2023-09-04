@@ -8,6 +8,8 @@ type Message = {
   CreatedAt: string;
 };
 
+// TODO: clear input on submit
+
 const SpecificConversation = () => {
   const { conversationId } = useParams();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -25,24 +27,29 @@ const SpecificConversation = () => {
     }
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendMesssage(currentMessage);
+  };
+
   const sendMesssage = async (message: string) => {
-    const response = await saveMessage(5, 1, message);
+    const response = await saveMessage(5, Number(conversationId), message); // TODO: get actual user id
 
     if (response!.ok) {
       const wsMessage = {
         Message: {
-          SenderUsername: "YourUsername", // TODO: get actual username
+          SenderUsername: "YourUsername", // TODO: get actual username from user id
           Content: message,
           CreatedAt: new Date().toISOString(),
         },
       };
 
       setMessages((prevMessages) => [...prevMessages, wsMessage.Message]);
+      setCurrentMessage(""); // Clear the message input after sending the message successfully.
     } else {
       console.log("Message failed to send"); // TODO: display properly
     }
   };
-
   const initWS = () => {
     const socket = new WebSocket(
       `ws://localhost:8080/messages/${conversationId}/`
@@ -76,18 +83,14 @@ const SpecificConversation = () => {
           </li>
         ))}
       </ul>
-      <input
-        type="text"
-        placeholder="Message"
-        onChange={(e) => setCurrentMessage(e.target.value)}
-      />
-      <button
-        onClick={() => {
-          sendMesssage(currentMessage);
-        }}
-      >
-        Send
-      </button>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Message"
+          onChange={(e) => setCurrentMessage(e.target.value)}
+        />
+        <button type="submit">Send</button>
+      </form>
     </div>
   );
 };
