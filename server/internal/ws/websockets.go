@@ -12,6 +12,10 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		allowedOrigin := "http://localhost:5173"
+		return r.Header.Get("Origin") == allowedOrigin
+	},
 }
 
 func NewWS(w http.ResponseWriter, r *http.Request, db *sql.DB, conversationID int) (err error) {

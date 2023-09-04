@@ -20,7 +20,6 @@ func main() {
 	r.HandleFunc("/messages/", func(w http.ResponseWriter, r *http.Request) {
 		routes.Messages(w, r, db)
 	}).Methods("GET")
-	r.HandleFunc("/messages/{ConversationId}", routes.Conversations).Methods("GET")
 	r.HandleFunc("/messages/{ConversationId}/", func(w http.ResponseWriter, r *http.Request) {
 		conversationID, err := strconv.Atoi(mux.Vars(r)["ConversationId"])
 		if err != nil {
