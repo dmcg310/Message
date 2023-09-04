@@ -30,7 +30,7 @@ func Messages(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	rows, err := db.Query("SELECT conversation_id FROM participants WHERE user_id = $1", userID)
+	rows, err := db.Query("SELECT p.conversation_id, u.username FROM participants p JOIN users u ON p.user_id = u.id WHERE p.user_id = $1", userID)
 	if err != nil {
 		fmt.Println("Error retrieving conversations: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -39,39 +39,30 @@ func Messages(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	defer rows.Close()
 
-	var conversationIDs []int
+	type ConversationInfo struct {
+		ConversationID int    `json:"conversation_id"`
+		OtherUsername  string `json:"other_username"`
+	}
+
+	var conversations []ConversationInfo
+
 	for rows.Next() {
-		var conversationID int
-		if err := rows.Scan(&conversationID); err != nil {
+		var conversationInfo ConversationInfo
+		if err := rows.Scan(&conversationInfo.ConversationID, &conversationInfo.OtherUsername); err != nil {
 			fmt.Println("Error scanning conversation row: ", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		conversationIDs = append(conversationIDs, conversationID)
-	}
-
-	var participants []string
-
-	for _, conversationID := range conversationIDs {
-		participantUsernames, err := GetParticipantUsernames(db, conversationID, userID)
-		if err != nil {
-			fmt.Println("Error retrieving participant usernames: ", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		participants = append(participants, participantUsernames...)
+		conversations = append(conversations, conversationInfo)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	uniqueParticipants := removeDuplicates(participants)
-
-	participantsJSON, err := json.Marshal(uniqueParticipants)
+	participantsJSON, err := json.Marshal(conversations)
 	if err != nil {
-		fmt.Println("Error serializing participant names to JSON: ", err)
+		fmt.Println("Error serializing conversation data to JSON: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

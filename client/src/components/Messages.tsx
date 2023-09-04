@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
 import getConversations from "../api/getConversations";
+import { useNavigate } from "react-router-dom";
+
+type Conversation = {
+  conversation_id: number;
+  other_username: string;
+  lastMessage: string;
+};
 
 const Messages = () => {
-  const [conversations, setConversations] = useState([]);
+  const navigate = useNavigate();
+  const [conversations, setConversations] = useState<Conversation[]>([]);
 
   useEffect(() => {
     fetchConversations();
@@ -18,11 +26,19 @@ const Messages = () => {
   return (
     <div>
       <h1>Conversations</h1>
-      {conversations.map((conversation: string) => (
-        <div key={conversation}>
-          <h2>{conversation}</h2>
-        </div>
-      ))}
+      <ul>
+        {conversations.map((conversation) => (
+          <li key={conversation.conversation_id}>
+            <button
+              onClick={() =>
+                navigate(`/messages/${conversation.conversation_id}/`)
+              }
+            >
+              {conversation.other_username}
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
