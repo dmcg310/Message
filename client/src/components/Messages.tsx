@@ -33,7 +33,7 @@ const Messages = () => {
       <div className="w-full flex items-center justify-center">
         <h1 className="text-5xl text-white mb-4">Conversations</h1>
       </div>
-      <ul className="bg-opacity-60 backdrop-blur-md rounded p-4 w-full max-w-xl bg-black text-white overflow-y-scroll h-1/2 relative flex flex-col items-center">
+      <ul className="bg-opacity-60 backdrop-blur-md rounded p-4 w-full max-w-3xl bg-black text-white overflow-y-scroll h-2/3 relative flex flex-col items-center">
         {conversations.map((conversation) => (
           <li
             className="border-b border-gray-400 py-2 w-full"
