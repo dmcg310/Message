@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import saveMessage from "../api/sendMessage";
+import Header from "./Header";
 
 type Message = {
   SenderUsername: string;
@@ -11,6 +12,7 @@ type Message = {
 // TODO: clear input on submit
 
 const SpecificConversation = () => {
+  const messagesEndRef = useRef(null);
   const { conversationId } = useParams();
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState("");
@@ -29,6 +31,10 @@ const SpecificConversation = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (currentMessage === "") {
+      return;
+    }
+
     sendMesssage(currentMessage);
   };
 
@@ -71,25 +77,53 @@ const SpecificConversation = () => {
     initWS();
   }, []);
 
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
   return (
-    <div>
-      <h1>Conversation</h1>
-      <ul>
+    <div
+      className="bg-cover bg-center h-screen relative flex flex-col items-center justify-center p-4"
+      style={{ backgroundImage: `url("../../assets/index.jpg")` }}
+    >
+      <Header />
+      <div className="w-full flex items-center justify-center">
+        <h1 className="text-5xl text-white mb-4">Chatting with: username</h1>
+        {/* TODO: get actual username from user id */}
+      </div>
+
+      <ul className="bg-opacity-60 backdrop-blur-md rounded p-4 w-full max-w-xl bg-black text-white overflow-y-scroll h-1/2">
         {messages.map((message, index) => (
-          <li className="pt-10 text-2xl text-white" key={index}>
-            <p>Sender: {message.SenderUsername}</p>
-            <p>Content: {message.Content}</p>
-            <p>Created At: {message.CreatedAt}</p>
+          <li className="border-b border-gray-400 py-2" key={index}>
+            <p className="font-bold">{message.SenderUsername}</p>
+            <p className="text-gray-300">{message.Content}</p>
+            <p className="text-xs text-gray-500">
+              {new Date(message.CreatedAt).toLocaleString()}
+            </p>
           </li>
         ))}
+        <div ref={messagesEndRef}></div>
       </ul>
-      <form onSubmit={handleSubmit}>
+
+      <form
+        className="mt-4 w-full max-w-xl flex justify-between items-center"
+        onSubmit={handleSubmit}
+      >
         <input
           type="text"
           placeholder="Message"
+          className="flex-grow rounded-l p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
           onChange={(e) => setCurrentMessage(e.target.value)}
+          value={currentMessage}
         />
-        <button type="submit">Send</button>
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-6 py-2 rounded-r hover:bg-blue-800"
+        >
+          Send
+        </button>
       </form>
     </div>
   );
