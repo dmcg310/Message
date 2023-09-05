@@ -1,35 +1,14 @@
 package routes
 
-// TODO: handle actual forms from frontend
-
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"github.com/dmcg310/Message/server/internal/auth"
 	"net/http"
 )
 
-type Details struct {
-	UserID   int
-	Username string
-	Email    string
-	Password string
-}
-
-var (
-	// should be real form data
-	details Details = Details{
-		UserID:   5,
-		Username: "JDoe",
-		Email:    "john_though@gmail.com",
-		Password: "Password123",
-	}
-	_ = details
-
-	emailExists    bool
-	usernameExists bool
-	userExists     bool
-)
+var userExists bool
 
 func GetAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	tokenString := r.Header.Get("Authorization")
@@ -44,32 +23,73 @@ func GetAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	_ = userID
-	// TODO: use userID to fetch account details from the database
+	rows, err := db.Query("SELECT username, email FROM users WHERE id = $1", userID)
+	if err != nil {
+		http.Error(w, "Error retrieving account details", http.StatusInternalServerError)
+		return
+	}
+
+	defer rows.Close()
+
+	var accountDetails struct {
+		Username string `json:"username"`
+		Email    string `json:"email"`
+	}
+
+	if rows.Next() {
+		if err := rows.Scan(&accountDetails.Username, &accountDetails.Email); err != nil {
+			http.Error(w, "Error scanning account details row", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(accountDetails); err != nil {
+			http.Error(w, "Error encoding JSON response", http.StatusInternalServerError)
+			return
+		}
+	} else {
+		http.Error(w, "No account details found", http.StatusNotFound)
+	}
 }
 
 func CreateAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	var details struct {
+		Email    string `json:"email"`
+		Username string `json:"username"`
+		Password string `json:"password"`
+		UserID   int    `json:"user_id"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&details); err != nil {
+		http.Error(w, "Error parsing request body", http.StatusBadRequest)
+		return
+	}
+
+	var emailExists bool
 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)",
 		details.Email).Scan(&emailExists)
 	if err != nil {
-		fmt.Println("Error checking if email exists in database: ", err)
+		http.Error(w, "Error checking if email exists in database",
+			http.StatusInternalServerError)
 		return
 	}
 
 	if emailExists {
-		fmt.Println("Email already exists")
+		http.Error(w, "Email already exists", http.StatusBadRequest)
 		return
 	}
 
+	var usernameExists bool
 	err = db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)",
 		details.Username).Scan(&usernameExists)
 	if err != nil {
-		fmt.Println("Error checking if username exists in database: ", err)
+		http.Error(w, "Error checking if username exists in database",
+			http.StatusInternalServerError)
 		return
 	}
 
 	if usernameExists {
-		fmt.Println("Username already exists")
+		http.Error(w, "Username already exists", http.StatusBadRequest)
 		return
 	}
 
@@ -100,64 +120,91 @@ func CreateAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 func DeleteAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	// TODO: http responses
+	var details struct {
+		UserID int `json:"user_id"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&details); err != nil {
+		http.Error(w, "Error parsing request body", http.StatusBadRequest)
+		return
+	}
+
 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)", details.UserID).Scan(&userExists)
 	if err != nil {
-		fmt.Println("Error checking if email exists in database: ", err)
+		http.Error(w, "Error checking if user exists in database", http.StatusInternalServerError)
 		return
 	}
 
 	if !userExists {
-		fmt.Println("User does not exist")
+		http.Error(w, "User does not exist", http.StatusNotFound)
 		return
 	}
 
 	_, err = db.Exec("DELETE FROM users WHERE id = $1", details.UserID)
 	if err != nil {
-		fmt.Println("Error inserting into database: ", err)
+		http.Error(w, "Error deleting from database", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write([]byte(`{"message": "Account deleted successfully"}`))
+	if err != nil {
+		http.Error(w, "Error writing to response", http.StatusInternalServerError)
 		return
 	}
 }
 
 func SignIn(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	hashedPassword, err := auth.HashPassword(details.Password)
+	var details struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+		UserID   int    `json:"user_id"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&details); err != nil {
+		http.Error(w, "Error parsing request body", http.StatusBadRequest)
+		return
+	}
+
+	var hashedPassword string
+
+	err := db.QueryRow("SELECT password FROM users WHERE email = $1",
+		details.Email).Scan(&hashedPassword)
 	if err != nil {
-		fmt.Println("Error hashing password: ", err)
+		if err == sql.ErrNoRows {
+			http.Error(w, "User does not exist", http.StatusNotFound)
+			return
+		}
+
+		http.Error(w, "Error querying database", http.StatusInternalServerError)
 		return
 	}
 
 	match := auth.ComparePassword(hashedPassword, details.Password)
 	if !match {
-		fmt.Println("Passwords do not match")
-		return
-	}
-
-	err = db.QueryRow(
-		"SELECT EXISTS(SELECT 1 FROM users WHERE email = $1 AND password = $2)",
-		details.Email, hashedPassword).Scan(&userExists)
-	if err != nil {
-		fmt.Println("Error checking if email exists in database: ", err)
-		return
-	}
-
-	if !userExists {
-		fmt.Println("User does not exist")
+		http.Error(w, "Invalid password", http.StatusUnauthorized)
 		return
 	}
 
 	tokenString, err := auth.GenerateJWT(details.UserID)
 	if err != nil {
-		fmt.Println("Error generating JWT: ", err)
+		http.Error(w, "Error generating JWT", http.StatusInternalServerError)
 		return
 	}
 
-	_, error := w.Write([]byte(tokenString))
-	if error != nil {
-		fmt.Println("Error writing to response: ", error)
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write([]byte(`{"token": "` + tokenString + `"}`))
+	if err != nil {
+		http.Error(w, "Error writing to response", http.StatusInternalServerError)
 		return
 	}
 }
 
 func SignOut(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	// TODO
+	w.Header().Set("Content-Type", "application/json")
+	_, err := w.Write([]byte(`{"message": "Remove JWT from client"}`))
+	if err != nil {
+		http.Error(w, "Error writing to response", http.StatusInternalServerError)
+		return
+	}
 }

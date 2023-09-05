@@ -237,6 +237,5 @@ func SendMessage(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	fmt.Println("HERE")
 	w.WriteHeader(http.StatusOK)
 }
