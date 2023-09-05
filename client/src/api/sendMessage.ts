@@ -1,7 +1,6 @@
 import { API_URL } from "./config";
 
 const saveMessage = async (
-  userId: number,
   conversationId: number,
   content: string
 ) => {
@@ -12,7 +11,7 @@ const saveMessage = async (
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "User-Id": userId.toString(),
+          Authorization: `${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           content,

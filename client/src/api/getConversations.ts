@@ -2,7 +2,6 @@ import { API_URL } from "./config";
 
 const getConversations = async (userId: string) => {
   try {
-    console.log(userId);
     const response = await fetch(`${API_URL}/messages/`, {
       method: "GET",
       headers: {

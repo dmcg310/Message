@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import jwtDecode from "jwt-decode";
+import { useNavigate, useParams } from "react-router-dom";
 import saveMessage from "../api/sendMessage";
 import Header from "./Header";
 
@@ -9,7 +10,15 @@ type Message = {
   CreatedAt: string;
 };
 
+type DecodedToken = {
+  user_id: number;
+  username: string;
+  iat: number;
+  exp: number;
+};
+
 const SpecificConversation = () => {
+  const navigate = useNavigate();
   const messagesEndRef = useRef(null);
   const { conversationId } = useParams();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -47,21 +56,27 @@ const SpecificConversation = () => {
   };
 
   const sendMesssage = async (message: string) => {
-    const response = await saveMessage(5, Number(conversationId), message); // TODO: get actual user id
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken: DecodedToken = jwtDecode(token);
+      const response = await saveMessage(Number(conversationId), message);
 
-    if (response!.ok) {
-      const wsMessage = {
-        Message: {
-          SenderUsername: "YourUsername", // TODO: get actual username from user id
-          Content: message,
-          CreatedAt: new Date().toISOString(),
-        },
-      };
+      if (response!.ok) {
+        const wsMessage = {
+          Message: {
+            SenderUsername: decodedToken.user_id, // temporary
+            Content: message,
+            CreatedAt: new Date().toISOString(),
+          },
+        };
 
-      setMessages((prevMessages) => [...prevMessages, wsMessage.Message]);
-      setCurrentMessage("");
+        setMessages((prevMessages) => [...prevMessages, wsMessage.Message]);
+        setCurrentMessage("");
+      } else {
+        console.log("Message failed to send"); // TODO: display properly
+      }
     } else {
-      console.log("Message failed to send"); // TODO: display properly
+      navigate("/sign-in/");
     }
   };
 
@@ -83,7 +98,20 @@ const SpecificConversation = () => {
   };
 
   useEffect(() => {
-    initWS();
+    if (localStorage.getItem("token") === null) {
+      navigate("/sign-in/");
+    } else {
+      const decodedToken: DecodedToken = jwtDecode(
+        localStorage.getItem("token")!
+      );
+
+      if (Date.now() >= decodedToken.exp * 1000) {
+        alert("token expired, please log in again"); // TODO: display better
+      }
+    }
+
+    const cleanup = initWS();
+    return cleanup;
   }, []);
 
   useEffect(() => {

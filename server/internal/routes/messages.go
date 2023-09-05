@@ -73,8 +73,6 @@ func Messages(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Println(conversations)
 }
 
 func GetParticipantUsernames(db *sql.DB, conversationID int, userID int) ([]string, error) {
@@ -202,6 +200,7 @@ func GetConversationDetails(db *sql.DB, conversationID int) (conversationDetails
 	conversationDetails.Participants = participants
 	conversationDetails.Messages = messages
 
+	fmt.Println("conversationDetails: ", conversationDetails)
 	return conversationDetails, nil
 }
 

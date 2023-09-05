@@ -21,18 +21,17 @@ func main() {
 			routes.Messages(w, r, db)
 		})).Methods("GET")
 
-	r.HandleFunc("/messages/{ConversationId}/", middleware.JWTMiddleware(
-		func(w http.ResponseWriter, r *http.Request) {
-			conversationID, err := strconv.Atoi(mux.Vars(r)["ConversationId"])
-			if err != nil {
-				log.Println(err)
-			}
+	r.HandleFunc("/messages/{ConversationId}/", func(w http.ResponseWriter, r *http.Request) {
+		conversationID, err := strconv.Atoi(mux.Vars(r)["ConversationId"])
+		if err != nil {
+			log.Println(err)
+		}
 
-			err = ws.NewWS(w, r, db, conversationID)
-			if err != nil {
-				log.Println(err)
-			}
-		}))
+		err = ws.NewWS(w, r, db, conversationID)
+		if err != nil {
+			log.Println(err)
+		}
+	})
 
 	r.HandleFunc("/messages/{ConversationId}/save/", middleware.JWTMiddleware(
 		func(w http.ResponseWriter, r *http.Request) {
