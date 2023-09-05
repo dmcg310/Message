@@ -1,13 +1,11 @@
 package routes
 
-/* TODO:
-* - handle actual forms from frontend
-* - remember me token
- */
+// TODO: handle actual forms from frontend
 
 import (
 	"database/sql"
 	"fmt"
+	"github.com/dmcg310/Message/server/internal/auth"
 	"net/http"
 )
 
@@ -16,7 +14,6 @@ type Details struct {
 	Username string
 	Email    string
 	Password string
-	RMToken  string // remember me token
 }
 
 var (
@@ -26,7 +23,6 @@ var (
 		Username: "JDoe",
 		Email:    "john_though@gmail.com",
 		Password: "Password123",
-		RMToken:  "8asd7f8918172",
 	}
 	_ = details
 
@@ -36,17 +32,23 @@ var (
 )
 
 func GetAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	err := db.QueryRow("SELECT * FROM users WHERE id = $1", details.UserID).Scan(&details.UserID, &details.Username, &details.Email, &details.Password, &details.RMToken)
-	if err != nil {
-		fmt.Println("Error retrieving account info: ", err)
+	tokenString := r.Header.Get("Authorization")
+	if tokenString == "" {
+		http.Error(w, "Authorization header not found", http.StatusUnauthorized)
 		return
 	}
 
-	// do something with details
+	userID, err := auth.ParseJWT(tokenString)
+	if err != nil {
+		http.Error(w, "Invalid token", http.StatusUnauthorized)
+		return
+	}
+
+	_ = userID
+	// TODO: use userID to fetch account details from the database
 }
 
 func CreateAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	// TODO: Hash password & http responses
 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)",
 		details.Email).Scan(&emailExists)
 	if err != nil {
@@ -71,10 +73,28 @@ func CreateAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	_, err = db.Exec("INSERT INTO users (username, email, password, remember_me_token) VALUES ($1, $2, $3, $4)",
-		details.Username, details.Email, details.Password, details.RMToken)
+	hashedPassword, err := auth.HashPassword(details.Password)
+	if err != nil {
+		fmt.Println("Error hashing password: ", err)
+		return
+	}
+
+	_, err = db.Exec("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)",
+		details.Username, details.Email, hashedPassword)
 	if err != nil {
 		fmt.Println("Error inserting into database: ", err)
+		return
+	}
+
+	tokenString, err := auth.GenerateJWT(details.UserID)
+	if err != nil {
+		fmt.Println("Error generating JWT: ", err)
+		return
+	}
+
+	_, error := w.Write([]byte(tokenString))
+	if error != nil {
+		fmt.Println("Error writing to response: ", error)
 		return
 	}
 }
@@ -100,15 +120,21 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 func SignIn(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	/* TODO:
-	* - unhash password
-	* - token should be generated only if user checks remember me
-	 */
-	token := "8asd7f8918172"
+	hashedPassword, err := auth.HashPassword(details.Password)
+	if err != nil {
+		fmt.Println("Error hashing password: ", err)
+		return
+	}
 
-	err := db.QueryRow(
+	match := auth.ComparePassword(hashedPassword, details.Password)
+	if !match {
+		fmt.Println("Passwords do not match")
+		return
+	}
+
+	err = db.QueryRow(
 		"SELECT EXISTS(SELECT 1 FROM users WHERE email = $1 AND password = $2)",
-		details.Email, details.Password).Scan(&userExists)
+		details.Email, hashedPassword).Scan(&userExists)
 	if err != nil {
 		fmt.Println("Error checking if email exists in database: ", err)
 		return
@@ -119,20 +145,19 @@ func SignIn(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	_, err = db.Exec("UPDATE users SET remember_me_token = $1 WHERE email = $2",
-		token, details.Email)
+	tokenString, err := auth.GenerateJWT(details.UserID)
 	if err != nil {
-		fmt.Println("Error inserting into database: ", err)
+		fmt.Println("Error generating JWT: ", err)
+		return
+	}
+
+	_, error := w.Write([]byte(tokenString))
+	if error != nil {
+		fmt.Println("Error writing to response: ", error)
 		return
 	}
 }
 
 func SignOut(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	// TODO: http responses
-	err := db.QueryRow("UPDATE users SET remember_me_token = NULL WHERE email = $1",
-		details.Email)
-	if err != nil {
-		fmt.Println("Error updating database: ", err)
-		return
-	}
+	// TODO
 }
