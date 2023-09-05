@@ -127,7 +127,7 @@ const SpecificConversation = () => {
     >
       <Header />
       <div className="w-full flex items-center justify-center">
-        <h1 className="text-5xl text-white mb-4">Chatting with: username</h1>
+        <h1 className="text-5xl text-white mb-4">Chatting with: {}</h1>
         {/* TODO: get actual username from user id */}
       </div>
       <ul className="bg-opacity-60 backdrop-blur-md rounded p-4 w-full max-w-3xl bg-black text-white overflow-y-scroll h-2/3">

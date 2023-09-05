@@ -6,7 +6,7 @@ import Header from "./Header";
 
 type Conversation = {
   conversation_id: number;
-  other_username: string;
+  other_usernames: string[];
   lastMessage: string;
 };
 
@@ -61,7 +61,7 @@ const Messages = () => {
                 navigate(`/messages/${conversation.conversation_id}/`)
               }
             >
-              {conversation.other_username}
+              {conversation.other_usernames.join(", ")}
             </button>
             <p className="text-gray-400 text-sm pl-4">
               {conversation.lastMessage}

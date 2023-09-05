@@ -30,7 +30,7 @@ func Messages(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	rows, err := db.Query("SELECT p.conversation_id, u.username FROM participants p JOIN users u ON p.user_id = u.id WHERE p.user_id = $1", userID)
+	rows, err := db.Query("SELECT DISTINCT p.conversation_id FROM participants p WHERE p.user_id = $1", userID)
 	if err != nil {
 		fmt.Println("Error retrieving conversations: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -40,18 +40,30 @@ func Messages(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	defer rows.Close()
 
 	type ConversationInfo struct {
-		ConversationID int    `json:"conversation_id"`
-		OtherUsername  string `json:"other_username"`
+		ConversationID int      `json:"conversation_id"`
+		OtherUsernames []string `json:"other_usernames"`
 	}
 
 	var conversations []ConversationInfo
 
 	for rows.Next() {
-		var conversationInfo ConversationInfo
-		if err := rows.Scan(&conversationInfo.ConversationID, &conversationInfo.OtherUsername); err != nil {
+		var conversationID int
+		if err := rows.Scan(&conversationID); err != nil {
 			fmt.Println("Error scanning conversation row: ", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
+		}
+
+		otherUsernames, err := GetOtherParticipantUsernames(db, conversationID, userID)
+		if err != nil {
+			fmt.Println("Error getting other participant usernames: ", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		conversationInfo := ConversationInfo{
+			ConversationID: conversationID,
+			OtherUsernames: otherUsernames,
 		}
 
 		conversations = append(conversations, conversationInfo)
@@ -73,6 +85,28 @@ func Messages(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+}
+
+func GetOtherParticipantUsernames(db *sql.DB, conversationID int, userID int) ([]string, error) {
+	var participantUsernames []string
+
+	rows, err := db.Query("SELECT username FROM users WHERE id IN (SELECT user_id FROM participants WHERE conversation_id = $1 AND user_id != $2)", conversationID, userID)
+	if err != nil {
+		return participantUsernames, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var username string
+		if err := rows.Scan(&username); err != nil {
+			return participantUsernames, err
+		}
+
+		participantUsernames = append(participantUsernames, username)
+	}
+
+	return participantUsernames, nil
 }
 
 func GetParticipantUsernames(db *sql.DB, conversationID int, userID int) ([]string, error) {
@@ -200,7 +234,6 @@ func GetConversationDetails(db *sql.DB, conversationID int) (conversationDetails
 	conversationDetails.Participants = participants
 	conversationDetails.Messages = messages
 
-	fmt.Println("conversationDetails: ", conversationDetails)
 	return conversationDetails, nil
 }
 
