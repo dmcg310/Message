@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import jwtDecode from "jwt-decode";
 import getConversations from "../api/getConversations";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
@@ -18,9 +19,24 @@ const Messages = () => {
   }, []);
 
   const fetchConversations = async () => {
-    const conversations = await getConversations("5"); // TODO: get actual user id
-    if (conversations) {
-      setConversations(conversations);
+    const token = localStorage.getItem("token");
+    if (token) {
+      type DecodedToken = {
+        user_id: number;
+        username: string;
+        iat: number;
+        exp: number;
+      };
+
+      const decodedToken: DecodedToken = jwtDecode(token);
+      const userId = decodedToken.user_id;
+      const conversations = await getConversations(String(userId));
+
+      if (conversations) {
+        setConversations(conversations);
+      }
+    } else {
+      navigate("/sign-in/");
     }
   };
 

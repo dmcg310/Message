@@ -63,9 +63,11 @@ func main() {
 		})).Methods("POST")
 
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:5173"},
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders: []string{"Content-Type", "User-Id"},
+		AllowedOrigins:   []string{"http://localhost:5173"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "User-Id", "Authorization"},
+		AllowCredentials: true,
+		ExposedHeaders:   []string{"Authorization"},
 	})
 
 	handler := c.Handler(r)

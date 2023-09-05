@@ -19,7 +19,7 @@ func GetAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	userID, err := auth.ParseJWT(tokenString)
 	if err != nil {
-		http.Error(w, "Invalid token", http.StatusUnauthorized)
+		http.Error(w, "Invalid token GetAccount", http.StatusUnauthorized)
 		return
 	}
 
