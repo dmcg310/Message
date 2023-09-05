@@ -17,12 +17,21 @@ const Index = () => {
           Engage in stellar conversations, make friends from all corners of the
           galaxy.
         </p>
-        <a
-          href="/messages/"
-          className="bg-blue-600 text-white px-6 py-2 rounded-full text-lg hover:bg-blue-800"
-        >
-          Start Chatting
-        </a>
+        {(localStorage.getItem("token") && (
+          <a
+            href="/messages/"
+            className="bg-blue-600 text-white px-6 py-2 rounded-full text-lg hover:bg-blue-800"
+          >
+            Start Chatting
+          </a>
+        )) || (
+          <a
+            href="/create-account/"
+            className="bg-blue-600 text-white px-6 py-2 rounded-full text-lg hover:bg-blue-800"
+          >
+            Start Chatting
+          </a>
+        )}
       </div>
     </div>
   );

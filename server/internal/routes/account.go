@@ -57,7 +57,6 @@ func CreateAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		Email    string `json:"email"`
 		Username string `json:"username"`
 		Password string `json:"password"`
-		UserID   int    `json:"user_id"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&details); err != nil {
@@ -99,22 +98,42 @@ func CreateAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	_, err = db.Exec("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)",
-		details.Username, details.Email, hashedPassword)
+	_, err = db.Exec("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)", details.Username, details.Email, hashedPassword)
 	if err != nil {
-		fmt.Println("Error inserting into database: ", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	tokenString, err := auth.GenerateJWT(details.UserID)
+	var userID int
+	rows, err := db.Query("SELECT id FROM users WHERE email = $1", details.Email)
+	if err != nil {
+		fmt.Println("Error querying database: ", err)
+		return
+	}
+
+	if rows.Next() {
+		if err := rows.Scan(&userID); err != nil {
+			fmt.Println("Error scanning row: ", err)
+			return
+		}
+	} else {
+		fmt.Println("No rows returned")
+		return
+	}
+
+	rows.Close()
+
+	tokenString, err := auth.GenerateJWT(userID)
 	if err != nil {
 		fmt.Println("Error generating JWT: ", err)
 		return
 	}
 
-	_, error := w.Write([]byte(tokenString))
-	if error != nil {
-		fmt.Println("Error writing to response: ", error)
+	tokenResponse := map[string]string{"token": tokenString}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(tokenResponse); err != nil {
+		fmt.Println("Error writing JSON response: ", err)
 		return
 	}
 }
@@ -158,7 +177,6 @@ func SignIn(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var details struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
-		UserID   int    `json:"user_id"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&details); err != nil {
@@ -166,10 +184,14 @@ func SignIn(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	var hashedPassword string
+	var (
+		hashedPassword string
+		userID         int
+	)
 
-	err := db.QueryRow("SELECT password FROM users WHERE email = $1",
-		details.Email).Scan(&hashedPassword)
+	err := db.QueryRow("SELECT id, password FROM users WHERE email = $1",
+		details.Email).Scan(&userID, &hashedPassword)
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "User does not exist", http.StatusNotFound)
@@ -186,16 +208,17 @@ func SignIn(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	tokenString, err := auth.GenerateJWT(details.UserID)
+	tokenString, err := auth.GenerateJWT(userID)
 	if err != nil {
 		http.Error(w, "Error generating JWT", http.StatusInternalServerError)
 		return
 	}
 
+	tokenResponse := map[string]string{"token": tokenString}
 	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write([]byte(`{"token": "` + tokenString + `"}`))
-	if err != nil {
-		http.Error(w, "Error writing to response", http.StatusInternalServerError)
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(tokenResponse); err != nil {
+		fmt.Println("Error writing JSON response: ", err)
 		return
 	}
 }

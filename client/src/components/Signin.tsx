@@ -1,32 +1,49 @@
 import { useState } from "react";
 import Header from "./Header";
+import { useNavigate } from "react-router-dom";
+import signIn from "../api/signIn";
 
 type FormData = {
   email: string;
   password: string;
-  rememberMe: boolean;
 };
 
 const SignIn = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
-    rememberMe: false,
   });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     });
+  };
+
+  const submitForm = async (formData: FormData) => {
+    if (localStorage.getItem("token")) {
+      alert("You are already logged in!");
+      navigate("/messages");
+      return;
+    }
+
+    const token = await signIn(formData);
+    if (token) {
+      localStorage.setItem("token", token);
+      navigate("/messages");
+    } else {
+      // TODO: handle error
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: add submission logic here
+    submitForm(formData);
   };
 
   return (
@@ -66,20 +83,6 @@ const SignIn = () => {
               value={formData.password}
               onChange={handleChange}
             />
-          </div>
-
-          <div className="flex items-center mb-4">
-            <input
-              type="checkbox"
-              id="rememberMe"
-              name="rememberMe"
-              className="mr-2"
-              checked={formData.rememberMe}
-              onChange={handleChange}
-            />
-            <label className="text-white text-xl" htmlFor="rememberMe">
-              Remember Me
-            </label>
           </div>
 
           <div className="text-center">

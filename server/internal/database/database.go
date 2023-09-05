@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // do not remove
 	"log"
 	"os"
 )

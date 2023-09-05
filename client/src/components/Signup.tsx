@@ -1,21 +1,23 @@
 import { useState } from "react";
 import Header from "./Header";
+import { useNavigate } from "react-router-dom";
+import signUp from "../api/signUp";
 
 // TODO: email, password validation
+// username can only be 25 characters long
 
 type FormData = {
   username: string;
   password: string;
   email: string;
-  rememberMe: boolean;
 };
 
 const SignUp = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     username: "",
     password: "",
     email: "",
-    rememberMe: false,
   });
 
   const handleChange = (
@@ -28,9 +30,19 @@ const SignUp = () => {
     });
   };
 
+  const submitForm = async (formData: FormData) => {
+    const token = await signUp(formData);
+    if (token) {
+      localStorage.setItem("token", token);
+      navigate("/messages");
+    } else {
+      // TODO: handle error
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: add submission logic here
+    submitForm(formData);
   };
 
   return (
@@ -84,20 +96,6 @@ const SignUp = () => {
               value={formData.password}
               onChange={handleChange}
             />
-          </div>
-
-          <div className="flex items-center mb-4">
-            <input
-              type="checkbox"
-              id="rememberMe"
-              name="rememberMe"
-              className="mr-2"
-              checked={formData.rememberMe}
-              onChange={handleChange}
-            />
-            <label className="text-white text-xl" htmlFor="rememberMe">
-              Remember Me
-            </label>
           </div>
 
           <div className="text-center">

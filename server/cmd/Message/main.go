@@ -1,16 +1,15 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"strconv"
-
 	"github.com/dmcg310/Message/server/internal/database"
 	"github.com/dmcg310/Message/server/internal/middleware"
 	"github.com/dmcg310/Message/server/internal/routes"
 	"github.com/dmcg310/Message/server/internal/ws"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	"log"
+	"net/http"
+	"strconv"
 )
 
 func main() {
