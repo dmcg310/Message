@@ -21,6 +21,9 @@ const Account = () => {
   const [accountDetails, setAccountDetails] = useState<AccountDetails | null>(
     null
   );
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newUsername, setNewUsername] = useState("");
 
   const fetchAccountDetails = async (decodedToken: DecodedToken) => {
     const details = await getAccountDetails(String(decodedToken.user_id));
@@ -31,15 +34,37 @@ const Account = () => {
     }
   };
 
-  const handleNewPassword = () => {
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.id === "old-password") {
+      setOldPassword(e.target.value);
+    } else if (e.target.id === "new-password") {
+      setNewPassword(e.target.value);
+    }
+  };
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.id === "new-username") {
+      setNewUsername(e.target.value);
+    }
+  };
+
+  const handleNewPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: handle new password submission using oldPassword and newPassword state variables
+  };
+
+  const handleNewUsername = (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: handle new username submission using oldUsername and newUsername state variables
+  };
+
+  const handleSignOut = (e: React.FormEvent) => {
+    e.preventDefault();
     // TODO
   };
 
-  const handleNewUsername = () => {
-    // TODO
-  };
-
-  const handleChange = () => {
+  const handleDeleteAccount = (e: React.FormEvent) => {
+    e.preventDefault();
     // TODO
   };
 
@@ -71,16 +96,17 @@ const Account = () => {
       <div className="bg-opacity-60 backdrop-blur-md rounded p-4 w-max bg-black text-white flex flex-col items-center justify-center">
         {accountDetails && (
           <div className="w-full">
-            <div className="w-max mb-4">
-              <p className="text-2xl">Username: {accountDetails.username}</p>
-              <p className="text-2xl">Email: {accountDetails.email}</p>
+            <div className="flex pb-4 justify-between items-center">
+              <div>
+                <p className="text-2xl">Username: {accountDetails.username}</p>
+                <p className="text-2xl">Email: {accountDetails.email}</p>
+              </div>
             </div>
           </div>
         )}
-        <br />
-        <div className="flex gap-10">
-          <form onSubmit={handleNewPassword} className="mb-4">
-            <div className="mb-4">
+        <div className="flex gap-4 flex-col">
+          <form onSubmit={handleNewPassword}>
+            <div>
               <label
                 className="block text-white text-xl mb-2"
                 htmlFor="old-password"
@@ -91,9 +117,9 @@ const Account = () => {
                 type="password"
                 id="old-password"
                 name="password"
-                className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
-                onChange={handleChange}
-                value=""
+                className="flex-grow w-full rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
+                onChange={handlePasswordChange}
+                value={oldPassword}
               />
             </div>
 
@@ -108,9 +134,9 @@ const Account = () => {
                 type="password"
                 id="new-password"
                 name="password"
-                className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
-                onChange={handleChange}
-                value=""
+                className="flex-grow w-full rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
+                onChange={handlePasswordChange}
+                value={newPassword}
               />
             </div>
 
@@ -124,50 +150,51 @@ const Account = () => {
             </div>
           </form>
 
-          <form onSubmit={handleNewUsername} className="mb-4">
-            <div className="mb-4">
-              <label
-                className="block text-white text-xl mb-2"
-                htmlFor="old-username"
-              >
-                Old Username
-              </label>
-              <input
-                type="text"
-                id="old-username"
-                name="username"
-                className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
-                onChange={handleChange}
-                value=""
-              />
-            </div>
+          <div>
+            <form onSubmit={handleNewUsername} className="mb-4">
+              <div className="mb-4">
+                <label
+                  className="block text-white text-xl mb-2"
+                  htmlFor="new-username"
+                >
+                  New Username
+                </label>
+                <input
+                  type="text"
+                  id="new-username"
+                  name="username"
+                  className="flex-grow w-full rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
+                  onChange={handleUsernameChange}
+                  value={newUsername}
+                />
+              </div>
 
-            <div className="mb-4">
-              <label
-                className="block text-white text-xl mb-2"
-                htmlFor="new-username"
-              >
-                New Username
-              </label>
-              <input
-                type="text"
-                id="new-username"
-                name="username"
-                className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
-                onChange={handleChange}
-                value=""
-              />
-            </div>
-
-            <div className="text-center">
+              <div className="text-center">
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white text-2xl px-6 py-2 rounded hover:bg-blue-800 w-full"
+                >
+                  Update Username
+                </button>
+              </div>
+            </form>
+            <div className="flex flex-row justify-center gap-2">
               <button
                 type="submit"
-                className="bg-blue-600 text-white text-2xl px-6 py-2 rounded hover:bg-blue-800 w-full"
+                className="bg-emerald-600 text-white text-2xl px-6 py-2 rounded hover:bg-emerald-800 h-3/3 w-2/3"
+                onClick={handleSignOut}
               >
-                Update Username
+                Sign Out
+              </button>
+              <button
+                type="submit"
+                className="bg-rose-600 text-white text-2xl px-6 py-2 rounded hover:bg-rose-800 h-3/3 w-2/3"
+                onClick={handleDeleteAccount}
+              >
+                Delete Account
               </button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
