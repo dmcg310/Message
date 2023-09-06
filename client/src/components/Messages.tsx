@@ -14,10 +14,6 @@ const Messages = () => {
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
 
-  useEffect(() => {
-    fetchConversations();
-  }, []);
-
   const fetchConversations = async () => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -29,6 +25,11 @@ const Messages = () => {
       };
 
       const decodedToken: DecodedToken = jwtDecode(token);
+      if (Date.now() >= decodedToken.exp * 1000) {
+        alert("token expired, please log in again"); // TODO: display better
+        navigate("/sign-in/");
+      }
+
       const userId = decodedToken.user_id;
       const conversations = await getConversations(String(userId));
 
@@ -39,6 +40,10 @@ const Messages = () => {
       navigate("/sign-in/");
     }
   };
+
+  useEffect(() => {
+    fetchConversations();
+  }, []);
 
   return (
     <div

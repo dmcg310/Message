@@ -122,6 +122,7 @@ const SpecificConversation = () => {
 
       if (Date.now() >= decodedToken.exp * 1000) {
         alert("token expired, please log in again"); // TODO: display better
+        navigate("/sign-in/");
       }
     } else {
       navigate("/sign-in/");
