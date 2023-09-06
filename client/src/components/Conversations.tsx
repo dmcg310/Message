@@ -3,6 +3,7 @@ import jwtDecode from "jwt-decode";
 import { useNavigate, useParams } from "react-router-dom";
 import saveMessage from "../api/sendMessage";
 import Header from "./Header";
+import getConversations from "../api/getConversations";
 
 type Message = {
   SenderUsername: string;
@@ -17,6 +18,12 @@ type DecodedToken = {
   exp: number;
 };
 
+type Conversation = {
+  conversation_id: number;
+  other_usernames: string[];
+  lastMessage: string;
+};
+
 const SpecificConversation = () => {
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
@@ -24,6 +31,7 @@ const SpecificConversation = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState("");
   const [charCount, setCharCount] = useState(0);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
 
   const handleWSMessage = (eventData: string) => {
     const data = JSON.parse(eventData);
@@ -64,7 +72,7 @@ const SpecificConversation = () => {
       if (response!.ok) {
         const wsMessage = {
           Message: {
-            SenderUsername: decodedToken.user_id, // temporary
+            SenderUsername: decodedToken.username, // adjusted here
             Content: message,
             CreatedAt: new Date().toISOString(),
           },
@@ -97,17 +105,26 @@ const SpecificConversation = () => {
     };
   };
 
+  const getUsernames = async (decodedToken: DecodedToken) => {
+    const userId = decodedToken.user_id;
+    const conversations = await getConversations(String(userId));
+
+    if (conversations) {
+      setConversations(conversations);
+    }
+  };
+
   useEffect(() => {
-    if (localStorage.getItem("token") === null) {
-      navigate("/sign-in/");
-    } else {
-      const decodedToken: DecodedToken = jwtDecode(
-        localStorage.getItem("token")!
-      );
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken: DecodedToken = jwtDecode(token);
+      getUsernames(decodedToken);
 
       if (Date.now() >= decodedToken.exp * 1000) {
         alert("token expired, please log in again"); // TODO: display better
       }
+    } else {
+      navigate("/sign-in/");
     }
 
     const cleanup = initWS();
@@ -127,8 +144,12 @@ const SpecificConversation = () => {
     >
       <Header />
       <div className="w-full flex items-center justify-center">
-        <h1 className="text-5xl text-white mb-4">Chatting with: {}</h1>
-        {/* TODO: get actual username from user id */}
+        <h1 className="text-5xl text-white mb-4">
+          Chatting with:{" "}
+          {conversations.map((conversation) =>
+            conversation.other_usernames.join(", ")
+          )}
+        </h1>
       </div>
       <ul className="bg-opacity-60 backdrop-blur-md rounded p-4 w-full max-w-3xl bg-black text-white overflow-y-scroll h-2/3">
         {messages.map((message, index) => (

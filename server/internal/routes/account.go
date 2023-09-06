@@ -98,7 +98,8 @@ func CreateAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	_, err = db.Exec("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)", details.Username, details.Email, hashedPassword)
+	_, err = db.Exec("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)",
+		details.Username, details.Email, hashedPassword)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -123,7 +124,7 @@ func CreateAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	rows.Close()
 
-	tokenString, err := auth.GenerateJWT(userID)
+	tokenString, err := auth.GenerateJWT(userID, details.Username)
 	if err != nil {
 		fmt.Println("Error generating JWT: ", err)
 		return
@@ -175,6 +176,7 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 func SignIn(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var details struct {
+		Username string
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
@@ -208,7 +210,12 @@ func SignIn(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	tokenString, err := auth.GenerateJWT(userID)
+	err = db.QueryRow("SELECT username FROM users WHERE id=$1", userID).Scan(&details.Username)
+	if err != nil {
+		http.Error(w, "Error getting users username", http.StatusInternalServerError)
+	}
+
+	tokenString, err := auth.GenerateJWT(userID, details.Username)
 	if err != nil {
 		http.Error(w, "Error generating JWT", http.StatusInternalServerError)
 		return
