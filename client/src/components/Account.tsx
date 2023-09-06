@@ -70,104 +70,105 @@ const Account = () => {
       </div>
       <div className="bg-opacity-60 backdrop-blur-md rounded p-4 w-max bg-black text-white flex flex-col items-center justify-center">
         {accountDetails && (
-          <div className="mb-4">
-            <h1>Current Account Details</h1>
-            <p>Username: {accountDetails.username}</p>
-            <p>Email: {accountDetails.email}</p>
+          <div className="w-full">
+            <div className="w-max mb-4">
+              <p className="text-2xl">Username: {accountDetails.username}</p>
+              <p className="text-2xl">Email: {accountDetails.email}</p>
+            </div>
           </div>
         )}
+        <br />
+        <div className="flex gap-10">
+          <form onSubmit={handleNewPassword} className="mb-4">
+            <div className="mb-4">
+              <label
+                className="block text-white text-xl mb-2"
+                htmlFor="old-password"
+              >
+                Old Password
+              </label>
+              <input
+                type="password"
+                id="old-password"
+                name="password"
+                className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
+                onChange={handleChange}
+                value=""
+              />
+            </div>
 
-        <h1>Update Account Details</h1>
+            <div className="mb-4">
+              <label
+                className="block text-white text-xl mb-2"
+                htmlFor="new-password"
+              >
+                New Password
+              </label>
+              <input
+                type="password"
+                id="new-password"
+                name="password"
+                className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
+                onChange={handleChange}
+                value=""
+              />
+            </div>
 
-        <form onSubmit={handleNewPassword} className="mb-4">
-          <div className="mb-4">
-            <label
-              className="block text-white text-xl mb-2"
-              htmlFor="old-password"
-            >
-              Old Password
-            </label>
-            <input
-              type="password"
-              id="old-password"
-              name="password"
-              className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
-              onChange={handleChange}
-              value=""
-            />
-          </div>
+            <div className="text-center">
+              <button
+                type="submit"
+                className="bg-blue-600 text-white text-2xl px-6 py-2 rounded hover:bg-blue-800 w-full"
+              >
+                Update Password
+              </button>
+            </div>
+          </form>
 
-          <div className="mb-4">
-            <label
-              className="block text-white text-xl mb-2"
-              htmlFor="new-password"
-            >
-              New Password
-            </label>
-            <input
-              type="password"
-              id="new-password"
-              name="password"
-              className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
-              onChange={handleChange}
-              value=""
-            />
-          </div>
+          <form onSubmit={handleNewUsername} className="mb-4">
+            <div className="mb-4">
+              <label
+                className="block text-white text-xl mb-2"
+                htmlFor="old-username"
+              >
+                Old Username
+              </label>
+              <input
+                type="text"
+                id="old-username"
+                name="username"
+                className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
+                onChange={handleChange}
+                value=""
+              />
+            </div>
 
-          <div className="text-center">
-            <button
-              type="submit"
-              className="bg-blue-600 text-white text-2xl px-6 py-2 rounded hover:bg-blue-800 w-full"
-            >
-              Update Password
-            </button>
-          </div>
-        </form>
+            <div className="mb-4">
+              <label
+                className="block text-white text-xl mb-2"
+                htmlFor="new-username"
+              >
+                New Username
+              </label>
+              <input
+                type="text"
+                id="new-username"
+                name="username"
+                className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
+                onChange={handleChange}
+                value=""
+              />
+            </div>
 
-        <form onSubmit={handleNewUsername} className="mb-4">
-          <div className="mb-4">
-            <label
-              className="block text-white text-xl mb-2"
-              htmlFor="old-username"
-            >
-              Old Username
-            </label>
-            <input
-              type="text"
-              id="old-username"
-              name="username"
-              className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
-              onChange={handleChange}
-              value=""
-            />
-          </div>
-
-          <div className="mb-4">
-            <label
-              className="block text-white text-xl mb-2"
-              htmlFor="new-username"
-            >
-              New Username
-            </label>
-            <input
-              type="text"
-              id="new-username"
-              name="username"
-              className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
-              onChange={handleChange}
-              value=""
-            />
-          </div>
-
-          <div className="text-center">
-            <button
-              type="submit"
-              className="bg-blue-600 text-white text-2xl px-6 py-2 rounded hover:bg-blue-800 w-full"
-            >
-              Update Username
-            </button>
-          </div>
-        </form>
+            <div className="text-center">
+              <button
+                type="submit"
+                className="bg-blue-600 text-white text-2xl px-6 py-2 rounded hover:bg-blue-800 w-full"
+              >
+                Update Username
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
