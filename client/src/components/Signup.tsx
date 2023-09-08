@@ -23,10 +23,10 @@ const SignUp = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     });
   };
 
@@ -34,9 +34,10 @@ const SignUp = () => {
     const token = await signUp(formData);
     if (token) {
       localStorage.setItem("token", token);
-      navigate("/messages");
+      navigate("/messages/");
     } else {
-      // TODO: handle error
+      alert("error setting token");
+      navigate("/create-account/");
     }
   };
 
@@ -105,6 +106,16 @@ const SignUp = () => {
             >
               Sign Up
             </button>
+          </div>
+
+          <div className="text-center">
+            <p className="text-xl pt-2">
+              Already have an account? <br />
+              Sign in{" "}
+              <a className="text-blue-600 hover:text-blue-800" href="/sign-in/">
+                here
+              </a>
+            </p>
           </div>
         </form>
       </div>

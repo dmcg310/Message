@@ -3,13 +3,7 @@ import jwtDecode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import getAccountDetails from "../api/getAccountDetails";
 import Header from "./Header";
-
-type DecodedToken = {
-  user_id: number;
-  username: string;
-  iat: number;
-  exp: number;
-};
+import { DecodedToken } from "./Conversations";
 
 type AccountDetails = {
   username: string;

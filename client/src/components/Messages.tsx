@@ -3,6 +3,7 @@ import jwtDecode from "jwt-decode";
 import getConversations from "../api/getConversations";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
+import { DecodedToken } from "./Conversations";
 
 type Conversation = {
   conversation_id: number;
@@ -17,13 +18,6 @@ const Messages = () => {
   const fetchConversations = async () => {
     const token = localStorage.getItem("token");
     if (token) {
-      type DecodedToken = {
-        user_id: number;
-        username: string;
-        iat: number;
-        exp: number;
-      };
-
       const decodedToken: DecodedToken = jwtDecode(token);
       if (Date.now() >= decodedToken.exp * 1000) {
         alert("token expired, please log in again"); // TODO: display better

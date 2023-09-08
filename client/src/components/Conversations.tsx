@@ -11,7 +11,7 @@ type Message = {
   CreatedAt: string;
 };
 
-type DecodedToken = {
+export type DecodedToken = {
   user_id: number;
   username: string;
   iat: number;

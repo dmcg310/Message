@@ -1,7 +1,9 @@
 import { useState } from "react";
+import jwtDecode from "jwt-decode";
 import Header from "./Header";
 import { useNavigate } from "react-router-dom";
 import signIn from "../api/signIn";
+import { DecodedToken } from "./Conversations";
 
 type FormData = {
   email: string;
@@ -26,18 +28,33 @@ const SignIn = () => {
   };
 
   const submitForm = async (formData: FormData) => {
-    if (localStorage.getItem("token")) {
-      alert("You are already logged in!");
-      navigate("/messages");
-      return;
-    }
+    const existingToken = localStorage.getItem("token");
 
-    const token = await signIn(formData);
-    if (token) {
-      localStorage.setItem("token", token);
-      navigate("/messages");
+    if (existingToken) {
+      const decodedToken: DecodedToken = jwtDecode(existingToken);
+
+      if (Date.now() >= decodedToken.exp * 1000) {
+        const newToken = await signIn(formData);
+        if (newToken) {
+          localStorage.setItem("token", newToken);
+          navigate("/messages");
+        } else {
+          alert("Error setting new token");
+          navigate("/sign-in/");
+        }
+      } else {
+        alert("You are already logged in!");
+        navigate("/messages");
+      }
     } else {
-      // TODO: handle error
+      const newToken = await signIn(formData);
+      if (newToken) {
+        localStorage.setItem("token", newToken);
+        navigate("/messages");
+      } else {
+        alert("Error setting new token");
+        navigate("/sign-in/");
+      }
     }
   };
 
@@ -92,6 +109,17 @@ const SignIn = () => {
             >
               Login
             </button>
+          </div>
+          <div className="text-center">
+            <p className="text-xl pt-2">
+              Create an account{" "}
+              <a
+                className="text-blue-600 hover:text-blue-800"
+                href="/create-account/"
+              >
+                here
+              </a>
+            </p>
           </div>
         </form>
       </div>

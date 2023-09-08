@@ -1,6 +1,16 @@
+import { useEffect } from "react";
 import Header from "./Header";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/messages/");
+    }
+  }, []);
+
   return (
     <div
       className="bg-cover bg-center h-screen relative flex items-center justify-center"
