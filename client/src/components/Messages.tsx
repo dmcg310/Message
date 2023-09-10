@@ -20,8 +20,8 @@ const Messages = () => {
     if (token) {
       const decodedToken: DecodedToken = jwtDecode(token);
       if (Date.now() >= decodedToken.exp * 1000) {
-        alert("token expired, please log in again"); // TODO: display better
         navigate("/sign-in/");
+        alert("token expired, please log in again"); // TODO: display better
       }
 
       const userId = decodedToken.user_id;
@@ -35,9 +35,34 @@ const Messages = () => {
     }
   };
 
+  const handleNewConversation = async () => {
+    console.log("HERE");
+  };
+
   useEffect(() => {
     fetchConversations();
   }, []);
+
+  const conversationContent = conversations.length ? (
+    conversations.map((conversation) => (
+      <li
+        className="border-b border-gray-400 py-2 w-full"
+        key={conversation.conversation_id}
+      >
+        <button
+          className="text-3xl hover:text-gray-300 w-full text-left pl-4"
+          onClick={() => navigate(`/messages/${conversation.conversation_id}/`)}
+        >
+          {conversation.other_usernames.join(", ")}
+        </button>
+        <p className="text-gray-400 text-sm pl-4">{conversation.lastMessage}</p>
+      </li>
+    ))
+  ) : (
+    <li className="text-center py-2 w-full">
+      <p className="text-gray-400 text-2xl">No conversations yet.</p>
+    </li>
+  );
 
   return (
     <div
@@ -49,25 +74,14 @@ const Messages = () => {
         <h1 className="text-5xl text-white mb-4">Conversations</h1>
       </div>
       <ul className="bg-opacity-60 backdrop-blur-md rounded p-4 w-full max-w-3xl bg-black text-white overflow-y-scroll h-2/3 relative flex flex-col items-center">
-        {conversations.map((conversation) => (
-          <li
-            className="border-b border-gray-400 py-2 w-full"
-            key={conversation.conversation_id}
-          >
-            <button
-              className="text-3xl hover:text-gray-300 w-full text-left pl-4"
-              onClick={() =>
-                navigate(`/messages/${conversation.conversation_id}/`)
-              }
-            >
-              {conversation.other_usernames.join(", ")}
-            </button>
-            <p className="text-gray-400 text-sm pl-4">
-              {conversation.lastMessage}
-            </p>
-          </li>
-        ))}
+        {conversationContent}
       </ul>
+      <button
+        className="bg-emerald-600 text-2xl text-white rounded-md p-4 mt-4 hover:bg-emerald-800"
+        onClick={handleNewConversation}
+      >
+        Add New Conversation
+      </button>
     </div>
   );
 };
