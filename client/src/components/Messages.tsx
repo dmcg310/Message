@@ -4,6 +4,7 @@ import getConversations from "../api/getConversations";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import { DecodedToken } from "./Conversations";
+import Modal from "./Modal";
 
 type Conversation = {
   conversation_id: number;
@@ -14,6 +15,7 @@ type Conversation = {
 const Messages = () => {
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchConversations = async () => {
     const token = localStorage.getItem("token");
@@ -21,7 +23,9 @@ const Messages = () => {
       const decodedToken: DecodedToken = jwtDecode(token);
       if (Date.now() >= decodedToken.exp * 1000) {
         navigate("/sign-in/");
-        alert("token expired, please log in again"); // TODO: display better
+        setTimeout(() => {
+          alert("token expired, please log in again"); // TODO: display better
+        }, 0);
       }
 
       const userId = decodedToken.user_id;
@@ -35,8 +39,16 @@ const Messages = () => {
     }
   };
 
-  const handleNewConversation = async () => {
-    console.log("HERE");
+  const handleNewConversation = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleModalConfirm = (usernames: any) => {
+    // TODO: handle the confirmed usernames
   };
 
   useEffect(() => {
@@ -82,6 +94,11 @@ const Messages = () => {
       >
         Add New Conversation
       </button>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        onConfirm={handleModalConfirm}
+      />
     </div>
   );
 };

@@ -16,7 +16,7 @@ function App() {
           <Route path="/account/" element={<Account />} />
           <Route path="/create-account/" element={<SignUp />} />
           <Route path="/sign-in/" element={<SignIn />} />
-          <Route path="/messages" element={<Messages />} />
+          <Route path="/messages/" element={<Messages />} />
           <Route
             path="/messages/:conversationId"
             element={<SpecificConversation />}

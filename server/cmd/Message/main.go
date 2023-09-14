@@ -38,6 +38,11 @@ func main() {
 			routes.SendMessage(w, r, db)
 		})).Methods("POST")
 
+	r.HandleFunc("/conversations/new/", middleware.JWTMiddleware(
+		func(w http.ResponseWriter, r *http.Request) {
+			routes.NewConversation(w, r, db)
+		})).Methods("POST")
+
 	r.HandleFunc("/account/", middleware.JWTMiddleware(
 		func(w http.ResponseWriter, r *http.Request) {
 			routes.GetAccount(w, r, db)
