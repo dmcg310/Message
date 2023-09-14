@@ -184,7 +184,7 @@ const SpecificConversation = () => {
         <div className="flex items-center">
           <button
             type="submit"
-            className="bg-blue-600 text-white text-2xl px-6 py-2 rounded hover:bg-blue-800"
+            className="bg-blue-600 text-white text-2xl ml-2 px-6 py-3 rounded-3xl hover:bg-blue-800"
           >
             Send
           </button>
