@@ -2,11 +2,10 @@ package routes
 
 import (
 	"database/sql"
-	"net/http"
-	// "encoding/json"
-	// "fmt"
+	"encoding/json"
+	"fmt"
 	"github.com/dmcg310/Message/server/internal/auth"
-	// "net/http"
+	"net/http"
 )
 
 func NewConversation(w http.ResponseWriter, r *http.Request, db *sql.DB) {
@@ -21,15 +20,65 @@ func NewConversation(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		http.Error(w, "Invalid token GetAccount", http.StatusUnauthorized)
 		return
 	}
+	// userid is currently SIGNED IN user
 
-	_ = userId
+	var otherUsername string
 
-	// other users in conversation will be provided in request body
+	err = json.NewDecoder(r.Body).Decode(&otherUsername)
+	if err != nil {
+		fmt.Println("Error decoding JSON: ", err)
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
 
-	// TODO
-	// create new conversation (id, created_at)
-	// all participants linked to conversation e.g
-	// conversation_id user_id
-	// 1                 1 // current signed in user
-	// 1                 2 // other user that was provided in request body
+	var otherUserID int
+	err = db.QueryRow("SELECT id FROM users WHERE username = $1", otherUsername).Scan(&otherUserID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Other user does not exist", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Error querying database", http.StatusInternalServerError)
+		return
+	}
+
+	tx, err := db.Begin()
+	if err != nil {
+		http.Error(w, "Error starting transaction", http.StatusInternalServerError)
+		return
+	}
+
+	defer tx.Rollback()
+
+	var conversationID int64
+	err = tx.QueryRow("INSERT INTO conversations (created_at) VALUES (NOW()) RETURNING id").Scan(&conversationID)
+	if err != nil {
+		http.Error(w, "Error creating conversation", http.StatusInternalServerError)
+		return
+	}
+
+	if err != nil {
+		http.Error(w, "Error getting conversation ID", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = tx.Exec("INSERT INTO participants (conversation_id, user_id) VALUES ($1, $2), ($1, $3)",
+		conversationID, userId, otherUserID)
+	if err != nil {
+		http.Error(w, "Error adding participants to conversation", http.StatusInternalServerError)
+		return
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		http.Error(w, "Error committing transaction", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write([]byte(fmt.Sprintf(`{"message": "Conversation created successfully", "conversation_id": %d}`, conversationID)))
+	if err != nil {
+		http.Error(w, "Error writing to response", http.StatusInternalServerError)
+		return
+	}
 }

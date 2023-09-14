@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import { DecodedToken } from "./Conversations";
 import Modal from "./Modal";
+import createConversation from "../api/createConversation";
 
 type Conversation = {
   conversation_id: number;
@@ -47,8 +48,11 @@ const Messages = () => {
     setIsModalOpen(false);
   };
 
-  const handleModalConfirm = (usernames: any) => {
-    // TODO: handle the confirmed usernames
+  const handleModalConfirm = async (username: any) => {
+    const response = await createConversation(username);
+    if (response) {
+      console.log(response);
+    }
   };
 
   useEffect(() => {

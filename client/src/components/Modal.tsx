@@ -2,18 +2,13 @@ import { useState } from "react";
 import debounce from "lodash.debounce";
 import checkUsername from "../api/validateUsernames";
 
-// Modal for adding users to a conversation
+// TODO: make sure users doesnt try to specify themselves
+//       when creating conversation
 
+// Modal for adding users to a conversation
 const Modal = ({ isOpen, onClose, onConfirm }: any) => {
   const [username, setUsername] = useState("");
   const [isValid, setIsValid] = useState(null);
-
-  const validateUsernames = debounce(async (value: string) => {
-    const response = await checkUsername(value);
-    if (response) {
-      setIsValid(response);
-    }
-  }, 300);
 
   const handleChange = (e: any) => {
     const value = e.target.value;
