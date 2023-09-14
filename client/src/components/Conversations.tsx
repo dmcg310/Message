@@ -138,6 +138,10 @@ const SpecificConversation = () => {
     }
   }, [messages]);
 
+  const currentConversation = conversations.find(
+    (conversation) => conversation.conversation_id === Number(conversationId)
+  );
+
   return (
     <div
       className="bg-cover bg-center h-screen relative flex flex-col items-center justify-center p-4"
@@ -147,9 +151,9 @@ const SpecificConversation = () => {
       <div className="w-full flex items-center justify-center">
         <h1 className="text-5xl text-white mb-4">
           Chatting with:{" "}
-          {conversations.map((conversation) =>
-            conversation.other_usernames.join(", ")
-          )}
+          {currentConversation
+            ? currentConversation.other_usernames.join(", ")
+            : "Loading..."}
         </h1>
       </div>
       <ul className="bg-opacity-60 backdrop-blur-md rounded p-4 w-full max-w-3xl bg-black text-white overflow-y-scroll h-2/3">

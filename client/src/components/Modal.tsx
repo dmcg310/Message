@@ -5,6 +5,8 @@ import checkUsername from "../api/validateUsernames";
 // TODO: make sure users doesnt try to specify themselves
 //       when creating conversation
 
+// TODO: no duplicate conversations
+
 // Modal for adding users to a conversation
 const Modal = ({ isOpen, onClose, onConfirm }: any) => {
   const [username, setUsername] = useState("");
