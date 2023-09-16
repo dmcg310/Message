@@ -1,13 +1,13 @@
 import { API_URL } from "./config";
 
-const checkUsername = async (username: string) => {
+const checkConversation = async (conversationId: string) => {
   try {
-    const response = await fetch(`${API_URL}/valid-username/`, {
+    const response = await fetch(`${API_URL}/valid-conversation/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(username),
+      body: JSON.stringify(conversationId),
     });
 
     if (response.ok) {
@@ -20,4 +20,4 @@ const checkUsername = async (username: string) => {
   }
 };
 
-export default checkUsername;
+export default checkConversation;

@@ -50,8 +50,10 @@ const Messages = () => {
 
   const handleModalConfirm = async (username: any) => {
     const response = await createConversation(username);
-    if (response) {
-      console.log(response);
+    if (response.message == "Conversation created successfully") {
+      fetchConversations();
+    } else {
+      console.log("Error creating conversation");
     }
   };
 

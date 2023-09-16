@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import saveMessage from "../api/sendMessage";
 import Header from "./Header";
 import getConversations from "../api/getConversations";
+import checkConversation from "../api/validateConversations";
 
 type Message = {
   SenderUsername: string;
@@ -40,8 +41,6 @@ const SpecificConversation = () => {
       setMessages((prevMessages) => [...prevMessages, ...data.Messages]);
     } else if (data.Message) {
       setMessages((prevMessages) => [...prevMessages, data.Message]);
-    } else {
-      console.log("No messages"); // TODO: display properly
     }
   };
 
@@ -64,6 +63,10 @@ const SpecificConversation = () => {
   };
 
   const sendMesssage = async (message: string) => {
+    if (message === "") {
+      return;
+    }
+
     const token = localStorage.getItem("token");
     if (token) {
       const decodedToken: DecodedToken = jwtDecode(token);
@@ -85,6 +88,13 @@ const SpecificConversation = () => {
       }
     } else {
       navigate("/sign-in/");
+    }
+  };
+
+  const validateConversations = async (conversationId: string) => {
+    const response = await checkConversation(conversationId);
+    if (response == false) {
+      navigate("/");
     }
   };
 
@@ -138,6 +148,10 @@ const SpecificConversation = () => {
     }
   }, [messages]);
 
+  useEffect(() => {
+    validateConversations(conversationId!);
+  });
+
   const currentConversation = conversations.find(
     (conversation) => conversation.conversation_id === Number(conversationId)
   );
@@ -157,17 +171,21 @@ const SpecificConversation = () => {
         </h1>
       </div>
       <ul className="bg-opacity-60 backdrop-blur-md rounded p-4 w-full max-w-3xl bg-black text-white overflow-y-scroll h-2/3">
-        {messages.map((message, index) => (
-          <li className="border-b border-gray-400 py-2" key={index}>
-            <p className="font-bold text-blue-600 text-1xl">
-              {message.SenderUsername}
-            </p>
-            <p className="text-gray-300 text-2xl">{message.Content}</p>
-            <p className="text-gray-500 text-1xl">
-              {new Date(message.CreatedAt).toLocaleString()}
-            </p>
-          </li>
-        ))}
+        {messages.length === 0 ? (
+          <li className="text-gray-400 text-2xl">No messages yet</li>
+        ) : (
+          messages.map((message, index) => (
+            <li className="border-b border-gray-400 py-2" key={index}>
+              <p className="font-bold text-blue-600 text-1xl">
+                {message.SenderUsername}
+              </p>
+              <p className="text-gray-300 text-2xl">{message.Content}</p>
+              <p className="text-gray-500 text-1xl">
+                {new Date(message.CreatedAt).toLocaleString()}
+              </p>
+            </li>
+          ))
+        )}
         <div ref={messagesEndRef}></div>
       </ul>
       <form

@@ -43,8 +43,12 @@ func main() {
 			routes.NewConversation(w, r, db)
 		})).Methods("POST")
 
-	r.HandleFunc("/valid/", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/valid-username/", func(w http.ResponseWriter, r *http.Request) {
 		routes.ValidateUsernames(w, r, db)
+	})
+
+	r.HandleFunc("/valid-conversation/", func(w http.ResponseWriter, r *http.Request) {
+		routes.ValidateConversation(w, r, db)
 	})
 
 	r.HandleFunc("/account/", middleware.JWTMiddleware(
