@@ -7,10 +7,15 @@ import (
 	"net/http"
 )
 
-func ValidateConversation(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	var conversationId string
+type RequestBody struct {
+	ConversationId int `json:"conversationId"`
+	UserId         int    `json:"userId"`
+}
 
-	err := json.NewDecoder(r.Body).Decode(&conversationId)
+func ValidateConversation(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	var requestBody RequestBody
+
+	err := json.NewDecoder(r.Body).Decode(&requestBody)
 	if err != nil {
 		fmt.Println("Error decoding JSON: ", err)
 		http.Error(w, "Bad request", http.StatusBadRequest)
@@ -18,7 +23,16 @@ func ValidateConversation(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	var exists bool
-	err = db.QueryRow("SELECT EXISTS (SELECT 1 FROM conversations WHERE id = $1)", conversationId).Scan(&exists)
+	err = db.QueryRow(`
+		SELECT EXISTS (
+			SELECT 1
+			FROM conversations c
+			JOIN participants p ON c.id = p.conversation_id
+			WHERE c.id = $1
+			AND p.user_id = $2
+		)
+	`, requestBody.ConversationId, requestBody.UserId).Scan(&exists)
+
 	if err != nil {
 		fmt.Println("Error querying database: ", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)

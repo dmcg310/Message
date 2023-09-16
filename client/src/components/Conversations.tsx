@@ -62,20 +62,29 @@ const SpecificConversation = () => {
     }
   };
 
+  const tokenHandling = () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken: DecodedToken = jwtDecode(token);
+      return decodedToken;
+    } else {
+      return undefined;
+    }
+  };
+
   const sendMesssage = async (message: string) => {
     if (message === "") {
       return;
     }
 
-    const token = localStorage.getItem("token");
-    if (token) {
-      const decodedToken: DecodedToken = jwtDecode(token);
+    const decodedToken = tokenHandling();
+    if (decodedToken != undefined) {
       const response = await saveMessage(Number(conversationId), message);
 
       if (response!.ok) {
         const wsMessage = {
           Message: {
-            SenderUsername: decodedToken.username, // adjusted here
+            SenderUsername: decodedToken.username,
             Content: message,
             CreatedAt: new Date().toISOString(),
           },
@@ -92,9 +101,17 @@ const SpecificConversation = () => {
   };
 
   const validateConversations = async (conversationId: string) => {
-    const response = await checkConversation(conversationId);
-    if (response == false) {
-      navigate("/");
+    const token = tokenHandling();
+    if (token != undefined) {
+      const response = await checkConversation(
+        Number(conversationId),
+        token.user_id
+      );
+      if (response == false) {
+        navigate("/");
+      }
+    } else {
+      console.log("error getting token"); // TODO: display better
     }
   };
 
@@ -125,9 +142,8 @@ const SpecificConversation = () => {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const decodedToken: DecodedToken = jwtDecode(token);
+    const decodedToken = tokenHandling();
+    if (decodedToken != undefined) {
       getUsernames(decodedToken);
 
       if (Date.now() >= decodedToken.exp * 1000) {

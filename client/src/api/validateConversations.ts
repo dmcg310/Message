@@ -1,13 +1,13 @@
 import { API_URL } from "./config";
 
-const checkConversation = async (conversationId: string) => {
+const checkConversation = async (conversationId: number, userId: number) => {
   try {
     const response = await fetch(`${API_URL}/valid-conversation/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(conversationId),
+      body: JSON.stringify({ conversationId, userId }),
     });
 
     if (response.ok) {
