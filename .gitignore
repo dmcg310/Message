@@ -1,4 +1,5 @@
 # From https://github.com/github/gitignore/tree/main
+.idea
 *.exe
 *.exe~
 *.dll

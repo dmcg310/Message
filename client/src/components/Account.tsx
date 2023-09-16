@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import getAccountDetails from "../api/getAccountDetails";
 import Header from "./Header";
 import { DecodedToken } from "./Conversations";
+import signOut from "../api/signOut";
 
 type AccountDetails = {
   username: string;
@@ -37,9 +38,7 @@ const Account = () => {
   };
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.id === "new-username") {
-      setNewUsername(e.target.value);
-    }
+    setNewUsername(e.target.value);
   };
 
   const handleNewPassword = (e: React.FormEvent) => {
@@ -54,7 +53,15 @@ const Account = () => {
 
   const handleSignOut = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO
+    apiSignOut();
+  };
+
+  const apiSignOut = async () => {
+    const response = await signOut();
+    if (response.message == "Remove JWT from client") {
+      localStorage.removeItem("token");
+      navigate("/");
+    }
   };
 
   const handleDeleteAccount = (e: React.FormEvent) => {
@@ -149,13 +156,12 @@ const Account = () => {
               <div className="mb-4">
                 <label
                   className="block text-white text-xl mb-2"
-                  htmlFor="new-username"
+                  htmlFor="username"
                 >
                   New Username
                 </label>
                 <input
                   type="text"
-                  id="new-username"
                   name="username"
                   className="flex-grow w-full rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
                   onChange={handleUsernameChange}

@@ -9,7 +9,7 @@ import (
 
 type RequestBody struct {
 	ConversationId int `json:"conversationId"`
-	UserId         int    `json:"userId"`
+	UserId         int `json:"userId"`
 }
 
 func ValidateConversation(w http.ResponseWriter, r *http.Request, db *sql.DB) {
