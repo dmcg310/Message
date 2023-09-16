@@ -60,11 +60,11 @@ func main() {
 	// 		func(w http.ResponseWriter, r *http.Request) {
 	// 			routes.UpdatePassword(w, r, db)
 	// 		})).Methods("POST")
-	//
-	// 	r.HandleFunc("/new-username/", middleware.JWTMiddleware(
-	// 		func(w http.ResponseWriter, r *http.Request) {
-	// 			routes.UpdateUsername(w, r, db)
-	// 		})).Methods("POST")
+
+	r.HandleFunc("/new-username/", middleware.JWTMiddleware(
+		func(w http.ResponseWriter, r *http.Request) {
+			routes.UpdateUsername(w, r, db)
+		})).Methods("POST")
 
 	r.HandleFunc("/sign-in/", func(w http.ResponseWriter, r *http.Request) {
 		routes.SignIn(w, r, db)

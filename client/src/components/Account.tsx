@@ -5,6 +5,7 @@ import getAccountDetails from "../api/getAccountDetails";
 import Header from "./Header";
 import { DecodedToken } from "./Conversations";
 import signOut from "../api/signOut";
+import updateUsername from "../api/updateUsername";
 
 type AccountDetails = {
   username: string;
@@ -46,21 +47,32 @@ const Account = () => {
     // TODO: handle new password submission using oldPassword and newPassword state variables
   };
 
-  const handleNewUsername = (e: React.FormEvent) => {
+  const handleNewUsername = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: handle new username submission using oldUsername and newUsername state variables
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken: DecodedToken = jwtDecode(token);
+
+      const response = await updateUsername(newUsername, decodedToken.user_id);
+      if (response.message == "Username updated successfully") {
+        alert("Username updated successfully!"); // TODO: display better
+        navigate("/");
+      }
+    } else {
+      navigate("/sign-in/");
+    }
   };
 
-  const handleSignOut = (e: React.FormEvent) => {
+  const handleSignOut = async (e: React.FormEvent) => {
     e.preventDefault();
-    apiSignOut();
-  };
 
-  const apiSignOut = async () => {
     const response = await signOut();
     if (response.message == "Remove JWT from client") {
       localStorage.removeItem("token");
       navigate("/");
+    } else {
+      console.log("error signing out");
     }
   };
 

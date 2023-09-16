@@ -238,3 +238,42 @@ func SignOut(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 }
+
+func UpdateUsername(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	var details struct {
+		NewUsername string `json:"newUsername"`
+		UserId      int    `json:"userId"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&details); err != nil {
+		http.Error(w, "Error parsing request body", http.StatusBadRequest)
+		return
+	}
+
+	var usernameExists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)",
+		details.NewUsername).Scan(&usernameExists)
+	if err != nil {
+		http.Error(w, "Error checking if username exists in database", http.StatusInternalServerError)
+		return
+	}
+
+	if usernameExists {
+		http.Error(w, "Username already exists", http.StatusBadRequest)
+		return
+	}
+
+	_, err = db.Exec("UPDATE users SET username = $1 WHERE id = $2",
+		details.NewUsername, details.UserId)
+	if err != nil {
+		http.Error(w, "Error updating username in the database", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write([]byte(`{"message": "Username updated successfully"}`))
+	if err != nil {
+		http.Error(w, "Error writing to response", http.StatusInternalServerError)
+		return
+	}
+}
