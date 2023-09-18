@@ -1,11 +1,8 @@
 import { useState } from "react";
 import debounce from "lodash.debounce";
 import checkUsername from "../api/validateUsernames";
-
-// TODO: make sure users doesnt try to specify themselves
-//       when creating conversation
-
-// TODO: no duplicate conversations
+import jwtDecode from "jwt-decode";
+import { DecodedToken } from "./Conversations";
 
 // Modal for adding users to a conversation
 const Modal = ({ isOpen, onClose, onConfirm }: any) => {
@@ -26,6 +23,16 @@ const Modal = ({ isOpen, onClose, onConfirm }: any) => {
 
   const handleSubmit = () => {
     if (isValid) {
+      const decodedToken: DecodedToken = jwtDecode(
+        localStorage.getItem("token")!
+      );
+
+      if (username == decodedToken.username) {
+        setUsername("");
+        setIsValid(null);
+        return;
+      }
+
       onConfirm(username);
       setIsValid(null);
       onClose();
