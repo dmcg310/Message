@@ -82,7 +82,9 @@ const SignUp = () => {
     >
       <Header />
       <div className="w-full flex items-center justify-center">
-        <h1 className="text-5xl text-white mb-4">Create Account</h1>
+        <h1 className="text-5xl text-white mb-4 max-md:text-2xl">
+          Create Account
+        </h1>
       </div>
       <div className="bg-opacity-60 backdrop-blur-md rounded p-4 w-max bg-black text-white flex flex-col items-center justify-center">
         <form onSubmit={handleSubmit}>
@@ -94,7 +96,7 @@ const SignUp = () => {
               type="text"
               id="username"
               name="username"
-              className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
+              className="max-md:text-sm max-md:w-full flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
               value={formData.username}
               onChange={handleChange}
             />
@@ -108,7 +110,7 @@ const SignUp = () => {
               type="email"
               id="email"
               name="email"
-              className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
+              className="max-md:text-sm max-md:w-full flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
               value={formData.email}
               onChange={handleChange}
             />
@@ -122,7 +124,7 @@ const SignUp = () => {
               type="password"
               id="password"
               name="password"
-              className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
+              className="max-md:text-sm max-md:w-full flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
               value={formData.password}
               onChange={handleChange}
             />
@@ -132,14 +134,14 @@ const SignUp = () => {
             <Loading isLoading={isLoading} />
             <button
               type="submit"
-              className="bg-blue-600 text-white text-2xl px-6 py-2 rounded hover:bg-blue-800 w-full"
+              className="bg-blue-600 text-white text-2xl px-6 py-2 rounded hover:bg-blue-800 w-full max-md:text-lg"
             >
               Sign Up
             </button>
           </div>
 
           <div className="text-center">
-            <p className="text-xl pt-2">
+            <p className="text-xl pt-2 max-md:text-sm">
               Already have an account? <br />
               Sign in{" "}
               <a className="text-blue-600 hover:text-blue-800" href="/sign-in/">

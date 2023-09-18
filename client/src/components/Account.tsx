@@ -164,15 +164,19 @@ const Account = () => {
     >
       <Header />
       <div className="w-full flex items-center justify-center">
-        <h1 className="text-5xl text-white mb-4">Account</h1>
+        <h1 className="text-5xl text-white mb-4 max-md:text-3xl">Account</h1>
       </div>
-      <div className="bg-opacity-60 backdrop-blur-md rounded p-4 w-max bg-black text-white flex flex-col items-center justify-center">
+      <div className="max-md:w-4/5 bg-opacity-60 backdrop-blur-md rounded p-4 w-max bg-black text-white flex flex-col items-center justify-center">
         {accountDetails && (
           <div className="w-full">
             <div className="flex pb-4 justify-between items-center">
               <div>
-                <p className="text-2xl">Username: {accountDetails.username}</p>
-                <p className="text-2xl">Email: {accountDetails.email}</p>
+                <p className="text-2xl max-md:text-lg ">
+                  Username: {accountDetails.username}
+                </p>
+                <p className="text-2xl max-md:text-lg">
+                  Email: {accountDetails.email}
+                </p>
               </div>
             </div>
           </div>
@@ -190,7 +194,7 @@ const Account = () => {
                 type="password"
                 id="old-password"
                 name="password"
-                className="flex-grow w-full rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
+                className="max-md:text-sm flex-grow w-full rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
                 onChange={handlePasswordChange}
                 value={oldPassword}
               />
@@ -207,7 +211,7 @@ const Account = () => {
                 type="password"
                 id="new-password"
                 name="password"
-                className="flex-grow w-full rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
+                className="max-md:text-sm flex-grow w-full rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
                 onChange={handlePasswordChange}
                 value={newPassword}
               />
@@ -216,7 +220,7 @@ const Account = () => {
             <div className="text-center">
               <button
                 type="submit"
-                className="bg-blue-600 text-white text-2xl px-6 py-2 rounded hover:bg-blue-800 w-full"
+                className="max-md:text-lg bg-blue-600 text-white text-2xl px-6 py-2 rounded hover:bg-blue-800 w-full"
               >
                 Update Password
               </button>
@@ -235,7 +239,7 @@ const Account = () => {
                 <input
                   type="text"
                   name="username"
-                  className="flex-grow w-full rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
+                  className="max-md:text-sm flex-grow w-full rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
                   onChange={handleUsernameChange}
                   value={newUsername}
                 />
@@ -244,7 +248,7 @@ const Account = () => {
               <div className="text-center">
                 <button
                   type="submit"
-                  className="bg-blue-600 text-white text-2xl px-6 py-2 rounded hover:bg-blue-800 w-full"
+                  className="max-md:text-lg bg-blue-600 text-white text-2xl px-6 py-2 rounded hover:bg-blue-800 w-full"
                 >
                   Update Username
                 </button>
@@ -252,7 +256,7 @@ const Account = () => {
             </form>
             <button
               type="submit"
-              className="bg-rose-600 text-white w-full text-2xl px-6 py-2 rounded hover:bg-rose-800 h-3/3"
+              className="max-md:text-lg bg-rose-600 text-white w-full text-2xl px-6 py-2 rounded hover:bg-rose-800 h-3/3"
               onClick={handleSignOut}
             >
               Sign Out

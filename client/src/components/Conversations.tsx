@@ -179,14 +179,14 @@ const SpecificConversation = () => {
     >
       <Header />
       <div className="w-full flex items-center justify-center">
-        <h1 className="text-5xl text-white mb-4 max-md:text-3xl">
+        <h1 className="text-5xl text-white mb-4 max-md:text-2xl max-md:w-4/5">
           Chatting with:{" "}
           {currentConversation
             ? currentConversation.other_usernames.join(", ")
             : "Loading..."}
         </h1>
       </div>
-      <ul className="bg-opacity-60 backdrop-blur-md rounded p-4 w-full max-w-3xl bg-black text-white overflow-y-scroll h-2/3 max-md:h-3/5">
+      <ul className="max-md:w-4/5 bg-opacity-60 backdrop-blur-md rounded p-4 w-full max-w-3xl bg-black text-white overflow-y-scroll h-2/3 max-md:h-3/5">
         {messages.length === 0 ? (
           <li className="text-gray-400 text-2xl">No messages yet</li>
         ) : (
@@ -207,20 +207,20 @@ const SpecificConversation = () => {
         <div ref={messagesEndRef}></div>
       </ul>
       <form
-        className="mt-4 w-full max-w-3xl flex justify-between items-center"
+        className="mt-4 w-full max-w-3xl flex justify-between items-center max-md:w-4/5"
         onSubmit={handleSubmit}
       >
         <input
           type="text"
           placeholder="Message"
-          className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none max-md:w-1/2 max-md:text-lg"
+          className="max-md:w-full flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none max-md:text-lg"
           onChange={handleChange}
           value={currentMessage}
         />
         <div className="flex items-center">
           <button
             type="submit"
-            className="bg-blue-600 text-white text-2xl ml-2 px-6 py-3 rounded-3xl hover:bg-blue-800 max-md:1/2 max-md:py-2 max-md:text-lg"
+            className="max-md:w-full bg-blue-600 text-white text-2xl ml-2 px-6 py-3 rounded-3xl hover:bg-blue-800 max-md:1/2 max-md:py-2 max-md:text-lg"
           >
             Send
           </button>

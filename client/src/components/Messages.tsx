@@ -68,7 +68,7 @@ const Messages = () => {
         key={conversation.conversation_id}
       >
         <button
-          className="text-3xl hover:text-gray-300 w-full text-left pl-4"
+          className="text-3xl hover:text-gray-300 w-full text-left pl-4 max-md:text-xl"
           onClick={() => navigate(`/messages/${conversation.conversation_id}/`)}
         >
           {conversation.other_usernames.join(", ")}
@@ -89,13 +89,15 @@ const Messages = () => {
     >
       <Header />
       <div className="w-full flex items-center justify-center">
-        <h1 className="text-5xl text-white mb-4">Conversations</h1>
+        <h1 className="text-5xl text-white mb-4 max-md:text-3xl">
+          Conversations
+        </h1>
       </div>
-      <ul className="bg-opacity-60 backdrop-blur-md rounded p-4 w-full max-w-3xl bg-black text-white overflow-y-scroll h-2/3 relative flex flex-col items-center">
+      <ul className="max-md:w-4/5 bg-opacity-60 backdrop-blur-md rounded p-4 w-full max-w-3xl bg-black text-white overflow-y-scroll h-2/3 relative flex flex-col items-center">
         {conversationContent}
       </ul>
       <button
-        className="bg-emerald-600 text-2xl text-white rounded-md p-4 mt-4 hover:bg-emerald-800"
+        className="bg-emerald-600 text-2xl text-white rounded-md p-4 mt-4 hover:bg-emerald-800 max-md:text-lg"
         onClick={handleNewConversation}
       >
         Add New Conversation

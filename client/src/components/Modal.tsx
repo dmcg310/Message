@@ -50,7 +50,7 @@ const Modal = ({ isOpen, onClose, onConfirm }: any) => {
       onClick={onClose}
     >
       <div
-        className="bg-opacity-60 backdrop-blur-md rounded p-4 w-1/3 bg-black text-white"
+        className="max-md:w-4/5 bg-opacity-60 backdrop-blur-md rounded p-4 w-1/3 bg-black text-white"
         onClick={(e) => e.stopPropagation()}
       >
         <input
@@ -58,9 +58,9 @@ const Modal = ({ isOpen, onClose, onConfirm }: any) => {
           value={username}
           onChange={handleChange}
           placeholder="Check if a user exists by specifying their username"
-          className="flex-grow w-full rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
+          className="max-md:text-sm flex-grow w-full rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
         />
-        <p className="mt-2 flex text-2xl items-center">
+        <p className="mt-2 flex text-2xl items-center max-md:text-sm">
           {isLoading ? (
             <span className="text-gray-500">Checking...</span>
           ) : isValid === null ? (
@@ -106,13 +106,13 @@ const Modal = ({ isOpen, onClose, onConfirm }: any) => {
         <div className="flex gap-5">
           <button
             onClick={handleSubmit}
-            className="bg-emerald-600 text-2xl w-full text-white p-2 rounded mt-2 hover:bg-emerald-800"
+            className="bg-emerald-600 text-2xl w-full text-white p-2 rounded mt-2 hover:bg-emerald-800 max-md:text-lg"
           >
             Create
           </button>
           <button
             onClick={onClose}
-            className="bg-rose-600 text-2xl w-full text-white p-2 rounded mt-2 hover:bg-rose-800"
+            className="bg-rose-600 text-2xl w-full text-white p-2 rounded mt-2 hover:bg-rose-800 max-md:text-lg"
           >
             Close
           </button>
