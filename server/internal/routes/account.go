@@ -190,7 +190,8 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 func DeleteAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var details struct {
-		UserID int `json:"user_id"`
+		Password string `json:"password"`
+		UserID   int    `json:"userId"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&details); err != nil {
@@ -206,6 +207,24 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	if !userExists {
 		http.Error(w, "User does not exist", http.StatusNotFound)
+		return
+	}
+
+	var hashedPassword string
+	err = db.QueryRow("SELECT password FROM users WHERE id = $1", details.UserID).Scan(&hashedPassword)
+	if err != nil {
+		http.Error(w, "Error querying database for password", http.StatusInternalServerError)
+		return
+	}
+
+	match := auth.ComparePassword(hashedPassword, details.Password)
+	if !match {
+		http.Error(w, "Invalid password", http.StatusUnauthorized)
+		return
+	}
+	_, err = db.Exec("DELETE FROM participants WHERE user_id = $1", details.UserID)
+	if err != nil {
+		http.Error(w, "Error deleting references in participants table", http.StatusInternalServerError)
 		return
 	}
 

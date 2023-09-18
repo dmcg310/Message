@@ -13,6 +13,8 @@ type AccountDetails = {
   email: string;
 };
 
+// TODO: newPassword constraints
+
 const Account = () => {
   const navigate = useNavigate();
   const [accountDetails, setAccountDetails] = useState<AccountDetails | null>(
@@ -114,11 +116,6 @@ const Account = () => {
     } else {
       console.log("error signing out");
     }
-  };
-
-  const handleDeleteAccount = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO
   };
 
   useEffect(() => {
@@ -230,22 +227,13 @@ const Account = () => {
                 </button>
               </div>
             </form>
-            <div className="flex flex-row justify-center gap-2">
-              <button
-                type="submit"
-                className="bg-emerald-600 text-white text-2xl px-6 py-2 rounded hover:bg-emerald-800 h-3/3 w-2/3"
-                onClick={handleSignOut}
-              >
-                Sign Out
-              </button>
-              <button
-                type="submit"
-                className="bg-rose-600 text-white text-2xl px-6 py-2 rounded hover:bg-rose-800 h-3/3 w-2/3"
-                onClick={handleDeleteAccount}
-              >
-                Delete Account
-              </button>
-            </div>
+            <button
+              type="submit"
+              className="bg-rose-600 text-white w-full text-2xl px-6 py-2 rounded hover:bg-rose-800 h-3/3"
+              onClick={handleSignOut}
+            >
+              Sign Out
+            </button>
           </div>
         </div>
       </div>
