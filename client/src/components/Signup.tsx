@@ -2,6 +2,7 @@ import { useState } from "react";
 import Header from "./Header";
 import { useNavigate } from "react-router-dom";
 import signUp from "../api/signUp";
+import Loading from "./Loading";
 
 type FormData = {
   username: string;
@@ -11,6 +12,7 @@ type FormData = {
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     username: "",
     password: "",
@@ -28,7 +30,10 @@ const SignUp = () => {
   };
 
   const submitForm = async (formData: FormData) => {
+    setIsLoading(true);
     const token = await signUp(formData);
+    setIsLoading(false);
+
     if (token) {
       localStorage.setItem("token", token);
       navigate("/messages/");
@@ -124,6 +129,7 @@ const SignUp = () => {
           </div>
 
           <div className="text-center">
+            <Loading isLoading={isLoading} />
             <button
               type="submit"
               className="bg-blue-600 text-white text-2xl px-6 py-2 rounded hover:bg-blue-800 w-full"

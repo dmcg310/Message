@@ -15,6 +15,7 @@ type AccountDetails = {
 
 const Account = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [accountDetails, setAccountDetails] = useState<AccountDetails | null>(
     null
   );
@@ -23,11 +24,18 @@ const Account = () => {
   const [newUsername, setNewUsername] = useState("");
 
   const fetchAccountDetails = async (decodedToken: DecodedToken) => {
-    const details = await getAccountDetails(String(decodedToken.user_id));
-    if (details) {
-      setAccountDetails(details);
-    } else {
-      navigate("/sign-in/");
+    setIsLoading(true);
+    try {
+      const details = await getAccountDetails(String(decodedToken.user_id));
+      if (details) {
+        setAccountDetails(details);
+      } else {
+        navigate("/sign-in/");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -45,6 +53,7 @@ const Account = () => {
 
   const handleNewPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     if (
       oldPassword === null ||
@@ -85,10 +94,13 @@ const Account = () => {
     } else {
       navigate("/sign-in/");
     }
+
+    setIsLoading(false);
   };
 
   const handleNewUsername = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     if (
       newUsername === null ||
@@ -110,10 +122,13 @@ const Account = () => {
     } else {
       navigate("/sign-in/");
     }
+
+    setIsLoading(false);
   };
 
   const handleSignOut = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     const response = await signOut();
     if (response.message == "Remove JWT from client") {
@@ -122,6 +137,8 @@ const Account = () => {
     } else {
       console.log("error signing out");
     }
+
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -241,6 +258,11 @@ const Account = () => {
               Sign Out
             </button>
           </div>
+          {isLoading && (
+            <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white p-4 rounded">Loading...</div>
+            </div>
+          )}
         </div>
       </div>
     </div>

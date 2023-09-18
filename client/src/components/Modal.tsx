@@ -8,14 +8,17 @@ import { DecodedToken } from "./Conversations";
 const Modal = ({ isOpen, onClose, onConfirm }: any) => {
   const [username, setUsername] = useState("");
   const [isValid, setIsValid] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: any) => {
     const value = e.target.value;
     setUsername(value);
 
+    setIsLoading(true);
     const debouncedValidation = debounce(async () => {
       const response = await checkUsername(value);
       setIsValid(response);
+      setIsLoading(false);
     }, 300);
 
     debouncedValidation();
@@ -58,8 +61,10 @@ const Modal = ({ isOpen, onClose, onConfirm }: any) => {
           className="flex-grow w-full rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
         />
         <p className="mt-2 flex text-2xl items-center">
-          {isValid === null ? (
+          {isLoading ? (
             <span className="text-gray-500">Checking...</span>
+          ) : isValid === null ? (
+            <span className="text-gray-500">Enter a username to check</span>
           ) : isValid ? (
             <>
               <svg

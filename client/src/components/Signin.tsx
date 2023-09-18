@@ -12,6 +12,7 @@ type FormData = {
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
@@ -34,7 +35,10 @@ const SignIn = () => {
       const decodedToken: DecodedToken = jwtDecode(existingToken);
 
       if (Date.now() >= decodedToken.exp * 1000) {
+        setIsLoading(true);
         const newToken = await signIn(formData);
+        setIsLoading(false);
+
         if (newToken) {
           localStorage.setItem("token", newToken);
           navigate("/messages");
@@ -47,7 +51,10 @@ const SignIn = () => {
         navigate("/messages");
       }
     } else {
+      setIsLoading(true);
       const newToken = await signIn(formData);
+      setIsLoading(false);
+
       if (newToken) {
         localStorage.setItem("token", newToken);
         navigate("/messages");
@@ -107,7 +114,7 @@ const SignIn = () => {
               type="submit"
               className="bg-blue-600 text-white text-2xl px-6 py-2 rounded hover:bg-blue-800 w-full"
             >
-              Login
+              {isLoading ? "Logging in..." : "Login"}
             </button>
           </div>
           <div className="text-center">
