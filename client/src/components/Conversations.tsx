@@ -179,24 +179,26 @@ const SpecificConversation = () => {
     >
       <Header />
       <div className="w-full flex items-center justify-center">
-        <h1 className="text-5xl text-white mb-4">
+        <h1 className="text-5xl text-white mb-4 max-md:text-3xl">
           Chatting with:{" "}
           {currentConversation
             ? currentConversation.other_usernames.join(", ")
             : "Loading..."}
         </h1>
       </div>
-      <ul className="bg-opacity-60 backdrop-blur-md rounded p-4 w-full max-w-3xl bg-black text-white overflow-y-scroll h-2/3">
+      <ul className="bg-opacity-60 backdrop-blur-md rounded p-4 w-full max-w-3xl bg-black text-white overflow-y-scroll h-2/3 max-md:h-3/5">
         {messages.length === 0 ? (
           <li className="text-gray-400 text-2xl">No messages yet</li>
         ) : (
           messages.map((message, index) => (
             <li className="border-b border-gray-400 py-2" key={index}>
-              <p className="font-bold text-blue-600 text-1xl">
+              <p className="font-bold text-blue-600 text-sm">
                 {message.SenderUsername}
               </p>
-              <p className="text-gray-300 text-2xl">{message.Content}</p>
-              <p className="text-gray-500 text-1xl">
+              <p className="text-gray-300 text-2xl max-md:text-lg">
+                {message.Content}
+              </p>
+              <p className="text-gray-500 text-1xl max-md:text-sm">
                 {new Date(message.CreatedAt).toLocaleString()}
               </p>
             </li>
@@ -211,20 +213,22 @@ const SpecificConversation = () => {
         <input
           type="text"
           placeholder="Message"
-          className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none"
+          className="flex-grow rounded-l text-2xl p-2 bg-opacity-60 backdrop-blur-md bg-black text-white focus:outline-none max-md:w-1/2 max-md:text-lg"
           onChange={handleChange}
           value={currentMessage}
         />
         <div className="flex items-center">
           <button
             type="submit"
-            className="bg-blue-600 text-white text-2xl ml-2 px-6 py-3 rounded-3xl hover:bg-blue-800"
+            className="bg-blue-600 text-white text-2xl ml-2 px-6 py-3 rounded-3xl hover:bg-blue-800 max-md:1/2 max-md:py-2 max-md:text-lg"
           >
             Send
           </button>
         </div>
       </form>
-      <span className="m-2 text-1xl text-white">{charCount}/500</span>{" "}
+      <span className="m-2 text-1xl text-white max-md:text-sm">
+        {charCount}/500
+      </span>{" "}
     </div>
   );
 };

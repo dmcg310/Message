@@ -19,11 +19,11 @@ const Index = () => {
       }}
     >
       <Header />
-      <div className="text-center">
-        <h1 className="text-white text-5xl font-extrabold mb-4">
+      <div className="text-center max-md:w-screen max-md:p-4">
+        <h1 className="text-white text-5xl font-extrabold mb-4 max-md:text-4xl">
           Connect with the Universe
         </h1>
-        <p className="text-white text-lg mb-6">
+        <p className="text-white text-lg mb-6 max-md:text-sm">
           Engage in stellar conversations, make friends from all corners of the
           galaxy.
         </p>
