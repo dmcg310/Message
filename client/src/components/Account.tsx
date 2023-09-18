@@ -13,8 +13,6 @@ type AccountDetails = {
   email: string;
 };
 
-// TODO: newPassword constraints
-
 const Account = () => {
   const navigate = useNavigate();
   const [accountDetails, setAccountDetails] = useState<AccountDetails | null>(
@@ -59,6 +57,14 @@ const Account = () => {
       newPassword === undefined ||
       newPassword === ""
     ) {
+      return;
+    }
+
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    if (!passwordPattern.test(newPassword)) {
+      alert(
+        "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one number."
+      );
       return;
     }
 

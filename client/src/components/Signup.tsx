@@ -3,9 +3,6 @@ import Header from "./Header";
 import { useNavigate } from "react-router-dom";
 import signUp from "../api/signUp";
 
-// TODO: email, password validation
-// username can only be 25 characters long
-
 type FormData = {
   username: string;
   password: string;
@@ -43,6 +40,33 @@ const SignUp = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // <3 ai
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+
+    if (!emailPattern.test(formData.email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    if (!passwordPattern.test(formData.password)) {
+      alert(
+        "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one number."
+      );
+      return;
+    }
+
+    if (formData.username.length > 25) {
+      alert("Username cannot be more than 25 characters long.");
+      return;
+    }
+
+    if (formData.username.length < 3) {
+      alert("Username must be at least 3 characters long.");
+      return;
+    }
+
     submitForm(formData);
   };
 
