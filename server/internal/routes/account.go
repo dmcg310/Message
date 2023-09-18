@@ -139,6 +139,55 @@ func CreateAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 }
 
+func UpdatePassword(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	var details struct {
+		OldPassword string `json:"oldPassword"`
+		NewPassword string `json:"newPassword"`
+		UserId      int    `json:"userId"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&details); err != nil {
+		http.Error(w, "Error parsing request body", http.StatusBadRequest)
+		return
+	}
+
+	var hashedOldPassword string
+	err := db.QueryRow("SELECT password FROM users WHERE id = $1", details.UserId).Scan(&hashedOldPassword)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "User not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Error querying database", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	match := auth.ComparePassword(hashedOldPassword, details.OldPassword)
+	if !match {
+		http.Error(w, "Old password is incorrect", http.StatusUnauthorized)
+		return
+	}
+
+	hashedNewPassword, err := auth.HashPassword(details.NewPassword)
+	if err != nil {
+		http.Error(w, "Error hashing new password", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = db.Exec("UPDATE users SET password = $1 WHERE id = $2", hashedNewPassword, details.UserId)
+	if err != nil {
+		http.Error(w, "Error updating password in the database", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write([]byte(`{"message": "Password updated successfully"}`))
+	if err != nil {
+		http.Error(w, "Error writing to response", http.StatusInternalServerError)
+		return
+	}
+}
+
 func DeleteAccount(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var details struct {
 		UserID int `json:"user_id"`

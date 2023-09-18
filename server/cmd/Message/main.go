@@ -56,10 +56,10 @@ func main() {
 			routes.GetAccount(w, r, db)
 		})).Methods("GET")
 
-	// 	r.HandleFunc("/new-password/", middleware.JWTMiddleware(
-	// 		func(w http.ResponseWriter, r *http.Request) {
-	// 			routes.UpdatePassword(w, r, db)
-	// 		})).Methods("POST")
+	r.HandleFunc("/new-password/", middleware.JWTMiddleware(
+		func(w http.ResponseWriter, r *http.Request) {
+			routes.UpdatePassword(w, r, db)
+		})).Methods("POST")
 
 	r.HandleFunc("/new-username/", middleware.JWTMiddleware(
 		func(w http.ResponseWriter, r *http.Request) {

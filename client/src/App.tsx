@@ -19,8 +19,6 @@ function App() {
           <Route path="/messages/" element={<Messages />} />
           <Route
             path="/messages/:conversationId"
-            // TODO: route "/messages/??/" any conv id will bring up conversation
-            //       component rather than 404 or redirect
             element={<SpecificConversation />}
           />
         </Routes>

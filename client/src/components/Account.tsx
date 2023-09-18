@@ -6,6 +6,7 @@ import Header from "./Header";
 import { DecodedToken } from "./Conversations";
 import signOut from "../api/signOut";
 import updateUsername from "../api/updateUsername";
+import updatePassword from "../api/updatePassword";
 
 type AccountDetails = {
   username: string;
@@ -42,13 +43,52 @@ const Account = () => {
     setNewUsername(e.target.value);
   };
 
-  const handleNewPassword = (e: React.FormEvent) => {
+  const handleNewPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: handle new password submission using oldPassword and newPassword state variables
+
+    if (
+      oldPassword === null ||
+      oldPassword === undefined ||
+      oldPassword === ""
+    ) {
+      return;
+    } else if (
+      newPassword === null ||
+      newPassword === undefined ||
+      newPassword === ""
+    ) {
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken: DecodedToken = jwtDecode(token);
+
+      const response = await updatePassword(
+        oldPassword,
+        newPassword,
+        decodedToken.user_id
+      );
+
+      if (response.message == "Password updated successfully") {
+        alert("Password updated successfully!"); // TODO: display better
+        navigate("/");
+      }
+    } else {
+      navigate("/sign-in/");
+    }
   };
 
   const handleNewUsername = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (
+      newUsername === null ||
+      newUsername === undefined ||
+      newUsername === ""
+    ) {
+      return;
+    }
 
     const token = localStorage.getItem("token");
     if (token) {
