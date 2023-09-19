@@ -10,3 +10,4 @@
 - [Golang-jwt](https://github.com/golang-jwt/jwt)
 - [Bcrypt](https://pkg.go.dev/golang.org/x/crypto/bcrypt)
 - [Jwt-decode](https://www.npmjs.com/package/jwt-decode)
+- [React-toastify](https://www.npmjs.com/package/react-toastify)

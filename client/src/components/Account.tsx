@@ -7,6 +7,8 @@ import { DecodedToken } from "./Conversations";
 import signOut from "../api/signOut";
 import updateUsername from "../api/updateUsername";
 import updatePassword from "../api/updatePassword";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 type AccountDetails = {
   username: string;
@@ -16,26 +18,27 @@ type AccountDetails = {
 const Account = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [accountDetails, setAccountDetails] = useState<AccountDetails | null>(
-    null
-  );
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newUsername, setNewUsername] = useState("");
+  const [accountDetails, setAccountDetails] = useState<AccountDetails | null>(
+    null
+  );
 
   const fetchAccountDetails = async (decodedToken: DecodedToken) => {
     setIsLoading(true);
+
     try {
-      const details = await getAccountDetails(String(decodedToken.user_id));
-      if (details) {
-        setAccountDetails(details);
+      const result = await getAccountDetails(String(decodedToken.user_id));
+      setIsLoading(false);
+
+      if (result) {
+        setAccountDetails(result.data);
       } else {
-        navigate("/sign-in/");
+        toast.error(result!.error || "Error fetching account details");
       }
     } catch (error) {
       console.error(error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -60,20 +63,25 @@ const Account = () => {
       oldPassword === undefined ||
       oldPassword === ""
     ) {
+      toast.error("Old password cannot be blank");
+      setIsLoading(false);
       return;
     } else if (
       newPassword === null ||
       newPassword === undefined ||
       newPassword === ""
     ) {
+      toast.error("New password cannot be blank");
+      setIsLoading(false);
       return;
     }
 
     const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
     if (!passwordPattern.test(newPassword)) {
-      alert(
+      toast.error(
         "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one number."
       );
+      setIsLoading(false);
       return;
     }
 
@@ -86,10 +94,17 @@ const Account = () => {
         newPassword,
         decodedToken.user_id
       );
+      setIsLoading(false);
 
-      if (response.message == "Password updated successfully") {
-        alert("Password updated successfully!"); // TODO: display better
-        navigate("/");
+      if (response!.data) {
+        if (response?.data.message == "Password updated successfully") {
+          toast.success("Success! Redirecting...");
+          setTimeout(() => {
+            navigate("/messages/");
+          }, 2000);
+        }
+      } else {
+        toast.error(response!.error || "Error updating password");
       }
     } else {
       navigate("/sign-in/");
@@ -107,6 +122,14 @@ const Account = () => {
       newUsername === undefined ||
       newUsername === ""
     ) {
+      toast.error("New username cannot be blank");
+      setIsLoading(false);
+      return;
+    }
+
+    if (newUsername.length < 3) {
+      toast.error("New username must be longer than 3 characters");
+      setIsLoading(false);
       return;
     }
 
@@ -115,9 +138,15 @@ const Account = () => {
       const decodedToken: DecodedToken = jwtDecode(token);
 
       const response = await updateUsername(newUsername, decodedToken.user_id);
-      if (response.message == "Username updated successfully") {
-        alert("Username updated successfully!"); // TODO: display better
-        navigate("/");
+      setIsLoading(false);
+
+      if (response?.data.message == "Username updated successfully") {
+        toast.success("Success! Redirecting...");
+        setTimeout(() => {
+          navigate("/messages/");
+        }, 2000);
+      } else {
+        toast.error(response?.error || "Error updating username");
       }
     } else {
       navigate("/sign-in/");
@@ -131,11 +160,18 @@ const Account = () => {
     setIsLoading(true);
 
     const response = await signOut();
-    if (response.message == "Remove JWT from client") {
-      localStorage.removeItem("token");
-      navigate("/");
+    setIsLoading(false);
+
+    if (response!.data) {
+      if (response?.data.message == "Remove JWT from client") {
+        localStorage.removeItem("token");
+        toast.success("Success! Redirecting...");
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      }
     } else {
-      console.log("error signing out");
+      toast.error(response?.error || "Error signing out");
     }
 
     setIsLoading(false);
@@ -147,8 +183,12 @@ const Account = () => {
       const decodedToken: DecodedToken = jwtDecode(token);
 
       if (Date.now() >= decodedToken.exp * 1000) {
-        alert("token expired, please log in again");
-        navigate("/sign-in/");
+        toast.error(
+          "Your token has expired, please log in again. Redirecting..."
+        );
+        setTimeout(() => {
+          navigate("/sign-in/");
+        }, 2000);
       } else {
         fetchAccountDetails(decodedToken);
       }
@@ -162,6 +202,18 @@ const Account = () => {
       className="bg-cover bg-center h-screen flex flex-col items-center justify-center p-4"
       style={{ backgroundImage: `url("../../assets/index.jpg")` }}
     >
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <Header />
       <div className="w-full flex items-center justify-center">
         <h1 className="text-5xl text-white mb-4 max-md:text-3xl">Account</h1>
@@ -261,12 +313,12 @@ const Account = () => {
             >
               Sign Out
             </button>
+            {isLoading && (
+              <div className="text-center pt-2">
+                <p>Loading...</p>
+              </div>
+            )}
           </div>
-          {isLoading && (
-            <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
-              <div className="bg-white p-4 rounded">Loading...</div>
-            </div>
-          )}
         </div>
       </div>
     </div>

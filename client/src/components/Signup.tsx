@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Header from "./Header";
 import { useNavigate } from "react-router-dom";
 import signUp from "../api/signUp";
-import Loading from "./Loading";
 
 type FormData = {
   username: string;
@@ -31,44 +32,53 @@ const SignUp = () => {
 
   const submitForm = async (formData: FormData) => {
     setIsLoading(true);
-    const token = await signUp(formData);
+    const result = await signUp(formData);
     setIsLoading(false);
 
-    if (token) {
-      localStorage.setItem("token", token);
-      navigate("/messages/");
-    } else {
-      alert("error setting token");
-      navigate("/create-account/");
+    if (result) {
+      if (result.token) {
+        localStorage.setItem("token", result.token);
+        toast.success("Success! Redirecting...");
+        setTimeout(() => {
+          navigate("/messages/");
+        }, 2000);
+      } else {
+        toast.error(result.error || "Error setting new token");
+      }
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!formData.email || !formData.username || !formData.password) {
+      toast.error("Email, username, or password cannot be empty");
+      return;
+    }
+
     // <3 ai
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
 
     if (!emailPattern.test(formData.email)) {
-      alert("Please enter a valid email address.");
+      toast.error("Please enter a valid email address.");
       return;
     }
 
     if (!passwordPattern.test(formData.password)) {
-      alert(
+      toast.error(
         "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one number."
       );
       return;
     }
 
     if (formData.username.length > 25) {
-      alert("Username cannot be more than 25 characters long.");
+      toast.error("Username cannot be more than 25 characters long.");
       return;
     }
 
     if (formData.username.length < 3) {
-      alert("Username must be at least 3 characters long.");
+      toast.error("Username must be at least 3 characters long.");
       return;
     }
 
@@ -80,6 +90,18 @@ const SignUp = () => {
       className="bg-cover bg-center h-screen flex flex-col items-center justify-center p-4"
       style={{ backgroundImage: `url("../../assets/index.jpg")` }}
     >
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <Header />
       <div className="w-full flex items-center justify-center">
         <h1 className="text-5xl text-white mb-4 max-md:text-2xl">
@@ -131,12 +153,11 @@ const SignUp = () => {
           </div>
 
           <div className="text-center">
-            <Loading isLoading={isLoading} />
             <button
               type="submit"
               className="bg-blue-600 text-white text-2xl px-6 py-2 rounded hover:bg-blue-800 w-full max-md:text-lg"
             >
-              Sign Up
+              {isLoading ? "Signing up..." : "Sign Up"}
             </button>
           </div>
 

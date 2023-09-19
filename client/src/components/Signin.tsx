@@ -48,15 +48,22 @@ const SignIn = () => {
         if (result) {
           if (result.token) {
             localStorage.setItem("token", result.token);
-            navigate("/messages");
+            toast.error("Success! Redirecting...");
+            setTimeout(() => {
+              navigate("/messages/");
+            }, 2000);
           } else {
             toast.error(result.error || "Error setting new token");
-            navigate("/sign-in/");
+            setTimeout(() => {
+              navigate("/sign-in/");
+            }, 2000);
           }
         }
       } else {
         toast.info("You are already logged in!");
-        navigate("/messages");
+        setTimeout(() => {
+          navigate("/messages/");
+        }, 2000);
       }
     } else {
       const result = await signIn(formData);
@@ -65,10 +72,15 @@ const SignIn = () => {
       if (result) {
         if (result.token) {
           localStorage.setItem("token", result.token);
-          navigate("/messages");
+          toast.success("Success! Redirecting...");
+          setTimeout(() => {
+            navigate("/messages/");
+          }, 2000);
         } else {
           toast.error(result.error || "Error setting new token");
-          navigate("/sign-in/");
+          setTimeout(() => {
+            navigate("/sign-in/");
+          }, 2000);
         }
       }
     }
