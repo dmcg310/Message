@@ -14,13 +14,25 @@ const signIn = async (formData: FormData) => {
       },
       body: JSON.stringify(formData),
     });
+
+    const contentType = response.headers.get("content-type");
+
     if (response.ok) {
-      const data = await response.json();
-      return data.token;
+      if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
+        return { token: data.token };
+      }
+    } else {
+      if (contentType && contentType.includes("application/json")) {
+        const errorData = await response.json();
+        return { error: errorData.error };
+      } else {
+        const errorData = await response.text();
+        return { error: errorData };
+      }
     }
   } catch (error) {
-    console.log(error);
-    return error;
+    return { error: error.message };
   }
 };
 

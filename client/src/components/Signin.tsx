@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import jwtDecode from "jwt-decode";
 import Header from "./Header";
 import { useNavigate } from "react-router-dom";
@@ -29,38 +31,45 @@ const SignIn = () => {
   };
 
   const submitForm = async (formData: FormData) => {
-    const existingToken = localStorage.getItem("token");
+    if (!formData.email || !formData.password) {
+      toast.error("Email or password cannot be empty");
+      return;
+    }
 
+    setIsLoading(true);
+    const existingToken = localStorage.getItem("token");
     if (existingToken) {
       const decodedToken: DecodedToken = jwtDecode(existingToken);
 
       if (Date.now() >= decodedToken.exp * 1000) {
-        setIsLoading(true);
-        const newToken = await signIn(formData);
+        const result = await signIn(formData);
         setIsLoading(false);
 
-        if (newToken) {
-          localStorage.setItem("token", newToken);
-          navigate("/messages");
-        } else {
-          alert("Error setting new token");
-          navigate("/sign-in/");
+        if (result) {
+          if (result.token) {
+            localStorage.setItem("token", result.token);
+            navigate("/messages");
+          } else {
+            toast.error(result.error || "Error setting new token");
+            navigate("/sign-in/");
+          }
         }
       } else {
-        alert("You are already logged in!");
+        toast.info("You are already logged in!");
         navigate("/messages");
       }
     } else {
-      setIsLoading(true);
-      const newToken = await signIn(formData);
+      const result = await signIn(formData);
       setIsLoading(false);
 
-      if (newToken) {
-        localStorage.setItem("token", newToken);
-        navigate("/messages");
-      } else {
-        alert("Error setting new token");
-        navigate("/sign-in/");
+      if (result) {
+        if (result.token) {
+          localStorage.setItem("token", result.token);
+          navigate("/messages");
+        } else {
+          toast.error(result.error || "Error setting new token");
+          navigate("/sign-in/");
+        }
       }
     }
   };
@@ -75,6 +84,18 @@ const SignIn = () => {
       className="bg-cover bg-center h-screen flex flex-col items-center justify-center p-4"
       style={{ backgroundImage: `url("../../assets/index.jpg")` }}
     >
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <Header />
       <div className="w-full flex items-center justify-center">
         <h1 className="text-5xl text-white mb-4 max-md:text-2xl">Login</h1>
