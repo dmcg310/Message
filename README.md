@@ -14,7 +14,7 @@ Message is a modern, full-stack chat application that provides a seamless messag
 
 ![Messages image](repo-images/messages.png)
 
-### References
+## References
 - [Gorilla](https://gorilla.github.io/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [React & Vite](https://vitejs.dev/)
