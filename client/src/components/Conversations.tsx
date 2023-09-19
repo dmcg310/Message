@@ -5,6 +5,7 @@ import saveMessage from "../api/sendMessage";
 import Header from "./Header";
 import getConversations from "../api/getConversations";
 import checkConversation from "../api/validateConversations";
+import { ToastContainer, toast } from "react-toastify";
 
 type Message = {
   SenderUsername: string;
@@ -93,7 +94,7 @@ const SpecificConversation = () => {
         setMessages((prevMessages) => [...prevMessages, wsMessage.Message]);
         setCurrentMessage("");
       } else {
-        console.log("Message failed to send"); // TODO: display properly
+        toast.error("Message failed to send");
       }
     } else {
       navigate("/sign-in/");
@@ -103,6 +104,7 @@ const SpecificConversation = () => {
   const validateConversations = async (conversationId: string) => {
     const token = tokenHandling();
     if (token != undefined) {
+      // check to see if user is part of that conversation
       const response = await checkConversation(
         Number(conversationId),
         token.user_id
@@ -111,7 +113,7 @@ const SpecificConversation = () => {
         navigate("/");
       }
     } else {
-      console.log("error getting token"); // TODO: display better
+      toast.error("Error getting token");
     }
   };
 
@@ -136,8 +138,10 @@ const SpecificConversation = () => {
     const userId = decodedToken.user_id;
     const conversations = await getConversations(String(userId));
 
-    if (conversations) {
-      setConversations(conversations);
+    if (conversations?.data) {
+      setConversations(conversations.data);
+    } else {
+      toast.error(conversations?.error || "Error retrieving usernames");
     }
   };
 
@@ -147,8 +151,12 @@ const SpecificConversation = () => {
       getUsernames(decodedToken);
 
       if (Date.now() >= decodedToken.exp * 1000) {
-        alert("token expired, please log in again"); // TODO: display better
-        navigate("/sign-in/");
+        toast.error(
+          "Your token has expired, please log in again. Redirecting..."
+        );
+        setTimeout(() => {
+          navigate("/sign-in/");
+        }, 2000);
       }
     } else {
       navigate("/sign-in/");
@@ -177,6 +185,18 @@ const SpecificConversation = () => {
       className="bg-cover bg-center h-screen relative flex flex-col items-center justify-center p-4"
       style={{ backgroundImage: `url("../../assets/index.jpg")` }}
     >
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <Header />
       <div className="w-full flex items-center justify-center">
         <h1 className="text-5xl text-white mb-4 max-md:text-2xl max-md:w-4/5">

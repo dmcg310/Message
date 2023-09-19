@@ -11,13 +11,24 @@ const createConversation = async (otherUsername: string) => {
       body: JSON.stringify(otherUsername),
     });
 
+    const contentType = response.headers.get("content-type");
+
     if (response.ok) {
-      const data = await response.json();
-      return data;
+      if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
+        return { data: data };
+      }
+    } else {
+      if (contentType && contentType.includes("application/json")) {
+        const errorData = await response.json();
+        return { error: errorData.error };
+      } else {
+        const errorData = await response.text();
+        return { error: errorData };
+      }
     }
   } catch (error) {
-    console.log(error);
-    return error;
+    return { error: error.message };
   }
 };
 

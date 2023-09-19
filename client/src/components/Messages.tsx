@@ -6,6 +6,8 @@ import Header from "./Header";
 import { DecodedToken } from "./Conversations";
 import Modal from "./Modal";
 import createConversation from "../api/createConversation";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 type Conversation = {
   conversation_id: number;
@@ -23,17 +25,19 @@ const Messages = () => {
     if (token) {
       const decodedToken: DecodedToken = jwtDecode(token);
       if (Date.now() >= decodedToken.exp * 1000) {
-        navigate("/sign-in/");
+        toast.error("Token has expired please sign in again");
         setTimeout(() => {
-          alert("token expired, please log in again"); // TODO: display better
-        }, 0);
+          navigate("/sign-in/");
+        }, 2000);
       }
 
       const userId = decodedToken.user_id;
       const conversations = await getConversations(String(userId));
 
-      if (conversations) {
-        setConversations(conversations);
+      if (conversations?.data) {
+        setConversations(conversations.data);
+      } else {
+        toast.error(conversations?.error || "Error fetching conversations");
       }
     } else {
       navigate("/sign-in/");
@@ -50,10 +54,15 @@ const Messages = () => {
 
   const handleModalConfirm = async (username: any) => {
     const response = await createConversation(username);
-    if (response.message == "Conversation created successfully") {
-      fetchConversations();
+    if (response?.data) {
+      if (response?.data.message == "Conversation created successfully") {
+        toast.success("Success!");
+        fetchConversations();
+      } else {
+        toast.error(response.error || "Error creating conversation");
+      }
     } else {
-      console.log("Error creating conversation");
+      toast.error(response?.error || "Error creating conversation");
     }
   };
 
@@ -87,6 +96,18 @@ const Messages = () => {
       className="bg-cover bg-center h-screen relative flex flex-col items-center p-4 justify-center"
       style={{ backgroundImage: `url("../../assets/index.jpg")` }}
     >
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <Header />
       <div className="w-full flex items-center justify-center">
         <h1 className="text-5xl text-white mb-4 max-md:text-3xl">
