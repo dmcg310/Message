@@ -36,8 +36,6 @@ const Messages = () => {
 
       if (conversations?.data) {
         setConversations(conversations.data);
-      } else {
-        toast.error(conversations?.error || "Error fetching conversations");
       }
     } else {
       navigate("/sign-in/");
