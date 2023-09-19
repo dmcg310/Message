@@ -94,7 +94,6 @@ const SignIn = () => {
   return (
     <div
       className="bg-cover bg-center h-screen flex flex-col items-center justify-center p-4"
-      style={{ backgroundImage: `url("../../assets/index.jpg")` }}
     >
       <ToastContainer
         position="top-center"

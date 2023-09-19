@@ -28,3 +28,14 @@ select:-webkit-autofill:focus {
   width: 0px;
   background: transparent;
 }
+
+/* src/stylesheets/index.css */
+:root {
+  --global-background-image: url("");
+}
+
+body {
+  background-image: var(--global-background-image);
+  background-size: cover;
+  background-position: center;
+}

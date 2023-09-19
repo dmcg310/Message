@@ -12,12 +12,7 @@ const Index = () => {
   }, []);
 
   return (
-    <div
-      className="bg-cover bg-center h-screen relative flex items-center justify-center"
-      style={{
-        backgroundImage: `url("../../assets/index.jpg")`,
-      }}
-    >
+    <div className="bg-cover bg-center h-screen relative flex items-center justify-center">
       <Header />
       <div className="text-center max-md:w-screen max-md:p-4">
         <h1 className="text-white text-5xl font-extrabold mb-4 max-md:text-4xl">

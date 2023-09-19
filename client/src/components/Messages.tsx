@@ -90,10 +90,7 @@ const Messages = () => {
   );
 
   return (
-    <div
-      className="bg-cover bg-center h-screen relative flex flex-col items-center p-4 justify-center"
-      style={{ backgroundImage: `url("../../assets/index.jpg")` }}
-    >
+    <div className="bg-cover bg-center h-screen relative flex flex-col items-center p-4 justify-center">
       <ToastContainer
         position="top-center"
         autoClose={5000}

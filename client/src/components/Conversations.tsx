@@ -186,10 +186,7 @@ const SpecificConversation = () => {
   );
 
   return (
-    <div
-      className="bg-cover bg-center h-screen relative flex flex-col items-center justify-center p-4"
-      style={{ backgroundImage: `url("../../assets/index.jpg")` }}
-    >
+    <div className="bg-cover bg-center h-screen relative flex flex-col items-center justify-center p-4">
       <ToastContainer
         position="top-center"
         autoClose={5000}
