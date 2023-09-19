@@ -124,7 +124,7 @@ const SpecificConversation = () => {
 
   const initWS = () => {
     socket.current = new WebSocket(
-      `ws://localhost:8080/messages/${conversationId}/`
+      `ws://64.227.32.110:8080/messages/${conversationId}/`
     );
 
     socket.current.addEventListener("message", (event) => {
