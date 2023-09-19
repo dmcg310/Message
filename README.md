@@ -1,7 +1,15 @@
 # Message
+> Interstellar messaging
+
+Message is a modern, full-stack chat application that provides a seamless messaging experience with robust features including user authentication and direct messaging. The application is built with a scalable and efficient architecture, leveraging React & TypeScript for the frontend and Go (with Gorilla toolkit) for the backend, all orchestrated over a PostgreSQL database.
+
+## Features
+- User Authentication: Secure sign-up and login system to protect user data.
+- Direct Messaging: Allows users to send and receive messages in real time.
+- Responsive UI: A modern and responsive interface ensuring a seamless user experience across various devices.
+- Data Persistence: Messages and user data are stored in a PostgreSQL database ensuring data integrity and reliability.
 
 ### References
-
 - [Gorilla](https://gorilla.github.io/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [React & Vite](https://vitejs.dev/)
