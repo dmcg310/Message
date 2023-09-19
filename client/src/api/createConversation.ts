@@ -28,6 +28,7 @@ const createConversation = async (otherUsername: string) => {
       }
     }
   } catch (error) {
+    // @ts-ignore
     return { error: error.message };
   }
 };

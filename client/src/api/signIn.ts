@@ -32,6 +32,7 @@ const signIn = async (formData: FormData) => {
       }
     }
   } catch (error) {
+    // @ts-ignore
     return { error: error.message };
   }
 };

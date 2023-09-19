@@ -27,6 +27,7 @@ const signOut = async () => {
       }
     }
   } catch (error) {
+    // @ts-ignore
     return { error: error.message };
   }
 };

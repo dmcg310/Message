@@ -28,6 +28,7 @@ const updateUsername = async (newUsername: string, userId: number) => {
       }
     }
   } catch (error) {
+    // @ts-ignore
     return { error: error.message };
   }
 };

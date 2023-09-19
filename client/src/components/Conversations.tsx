@@ -168,6 +168,7 @@ const SpecificConversation = () => {
 
   useEffect(() => {
     if (messagesEndRef.current) {
+      // @ts-ignore
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
