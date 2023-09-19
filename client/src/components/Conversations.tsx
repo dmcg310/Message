@@ -28,7 +28,8 @@ type Conversation = {
 
 const SpecificConversation = () => {
   const navigate = useNavigate();
-  const messagesEndRef = useRef(null);
+  const socket = useRef<WebSocket | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const { conversationId } = useParams();
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState("");
@@ -51,7 +52,7 @@ const SpecificConversation = () => {
       return;
     }
 
-    sendMesssage(currentMessage);
+    sendMessage(currentMessage);
     setCharCount(0);
   };
 
@@ -63,17 +64,18 @@ const SpecificConversation = () => {
     }
   };
 
-  const tokenHandling = () => {
+  const tokenHandling = (): DecodedToken | undefined => {
     const token = localStorage.getItem("token");
     if (token) {
       const decodedToken: DecodedToken = jwtDecode(token);
       return decodedToken;
     } else {
+      navigate("/sign-in/");
       return undefined;
     }
   };
 
-  const sendMesssage = async (message: string) => {
+  const sendMessage = async (message: string) => {
     if (message === "") {
       return;
     }
@@ -91,7 +93,10 @@ const SpecificConversation = () => {
           },
         };
 
-        setMessages((prevMessages) => [...prevMessages, wsMessage.Message]);
+        if (socket.current && socket.current.readyState === WebSocket.OPEN) {
+          socket.current.send(JSON.stringify(wsMessage));
+        }
+
         setCurrentMessage("");
       } else {
         toast.error("Message failed to send");
@@ -118,18 +123,17 @@ const SpecificConversation = () => {
   };
 
   const initWS = () => {
-    const socket = new WebSocket(
+    socket.current = new WebSocket(
       `ws://localhost:8080/messages/${conversationId}/`
     );
 
-    socket.addEventListener("message", (event) => {
+    socket.current.addEventListener("message", (event) => {
       handleWSMessage(event.data);
-      setCurrentMessage("");
     });
 
     return () => {
-      if (socket.readyState === 1) {
-        socket.close();
+      if (socket.current && socket.current.readyState === WebSocket.OPEN) {
+        socket.current.close();
       }
     };
   };
