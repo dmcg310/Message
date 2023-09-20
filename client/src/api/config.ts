@@ -1,1 +1,1 @@
-export const API_URL = "http://64.227.32.110:8080";
+export const API_URL = "https://message-back-34595b7257d6.herokuapp.com";
