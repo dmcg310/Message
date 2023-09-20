@@ -30,7 +30,7 @@ func LoadEnv() (DBNAME, USER, PASSWORD, HOST, PORT string) {
 
 func InitDatabase() *sql.DB {
 	DBNAME, USER, PASSWORD, HOST, PORT := LoadEnv()
-	conn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+	conn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s",
 		HOST, PORT, USER, PASSWORD, DBNAME)
 
 	db, err := sql.Open("postgres", conn)
