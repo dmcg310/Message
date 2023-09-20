@@ -96,8 +96,6 @@ func main() {
 
 	handler := c.Handler(r)
 
-	log.Fatal(http.ListenAndServe(":8080", handler))
-
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
