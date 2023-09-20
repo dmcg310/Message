@@ -1,15 +1,17 @@
 package main
 
 import (
+	"log"
+	"net/http"
+	"os"
+	"strconv"
+
 	"github.com/dmcg310/Message/server/internal/database"
 	"github.com/dmcg310/Message/server/internal/middleware"
 	"github.com/dmcg310/Message/server/internal/routes"
 	"github.com/dmcg310/Message/server/internal/ws"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
-	"log"
-	"net/http"
-	"strconv"
 )
 
 func main() {
@@ -95,4 +97,12 @@ func main() {
 	handler := c.Handler(r)
 
 	log.Fatal(http.ListenAndServe(":8080", handler))
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Fatal(http.ListenAndServe(":"+port, handler))
+
 }
