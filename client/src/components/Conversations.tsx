@@ -124,7 +124,7 @@ const SpecificConversation = () => {
 
   const initWS = () => {
     socket.current = new WebSocket(
-      `ws://64.227.32.110:8080/messages/${conversationId}/`
+      `wss://message-back-34595b7257d6.herokuapp.com/messages/${conversationId}/`
     );
 
     socket.current.addEventListener("message", (event) => {

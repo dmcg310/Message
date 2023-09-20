@@ -14,7 +14,7 @@ var (
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 		CheckOrigin: func(r *http.Request) bool {
-			allowedOrigin := "http://localhost:5173"
+			allowedOrigin := "https://boisterous-duckanoo-b96168.netlify.app"
 			return r.Header.Get("Origin") == allowedOrigin
 		},
 	}
