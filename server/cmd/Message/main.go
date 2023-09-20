@@ -87,7 +87,7 @@ func main() {
 		})).Methods("POST")
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"https://boisterous-duckanoo-b96168.netlify.app/"},
+		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "User-Id", "Authorization"},
 		AllowCredentials: true,
