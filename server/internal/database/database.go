@@ -12,11 +12,18 @@ import (
 func LoadEnv() (DBNAME, USER, PASSWORD string) {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatalf("Error loading .env file: %s", err)
+		fmt.Println("No .env file found, looking for config vars...")
 	}
 
-	return os.Getenv("POSTGRES_DB"), os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PASSWORD")
+	DBNAME = os.Getenv("POSTGRES_DB")
+	USER = os.Getenv("POSTGRES_USER")
+	PASSWORD = os.Getenv("POSTGRES_PASSWORD")
+
+	if DBNAME == "" || USER == "" || PASSWORD == "" {
+		log.Fatalf("Failed to load database config vars")
+	}
+
+	return DBNAME, USER, PASSWORD
 }
 
 func InitDatabase() *sql.DB {
